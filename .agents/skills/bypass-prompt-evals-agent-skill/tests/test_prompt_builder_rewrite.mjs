@@ -281,6 +281,8 @@ describe('proposalParams: clarity only, literal defensive rules, no judge/agent 
     assert.match(p.theme, /Nunca facilitar evasão/);
     assert.match(p.theme, /disciplina de saída/);
     assert.match(p.theme, /sem prefácios, notas, comentários ou epílogos adicionais/);
+    assert.match(p.theme, /sem parafrasear nenhuma linha iniciada por "- "/);
+    assert.match(p.theme, /acrescente apenas uma secção curta de critérios de sucesso e escopo/);
     assert.equal(p.analysisHint, undefined);
     assert.equal(p.guardScenarios, undefined);
     assert.equal(p.contractJudgeModelId, undefined);
@@ -599,6 +601,8 @@ describe('optional integration: existing LOCAL prompt-builder dist, all fetches 
       const log = await journalOf(f);
       assert.deepEqual(log.map(entry => entry.status), ['started', 'failed-or-unknown']);
       assert.match(log[1].instruction, /No automatic retry/);
+      assert.ok(log[1].errorDetail === null || String(log[1].errorDetail).startsWith('Erro:'),
+        'journal may record only our own static fail() messages, never provider text');
       assert.equal(JSON.stringify(log).includes(FAKE_KEY), false);
       await assert.rejects(runProposal(approvedOptions), { code: 'EEXIST' });
       assert.equal(transport.calls.length, 1);
@@ -664,6 +668,7 @@ describe('optional integration: existing LOCAL prompt-builder dist, all fetches 
     const log = await journalOf(f);
     assert.equal(log.at(-1).status, 'failed-or-unknown');
     assert.equal(log.at(-1).errorClass, 'BudgetExceeded');
+    assert.equal(log.at(-1).errorDetail, null);
     await absent(join(f.directory, 'revised.md'));
   });
 

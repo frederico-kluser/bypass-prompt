@@ -44,10 +44,12 @@ export function proposalParams({ key, original, manifest, signal, sink, maxPrice
   if (!Array.isArray(manifest.never_break) || JSON.stringify(anchors) !== JSON.stringify(manifest.never_break))
     fail('contratos defensivos divergentes', 'preserve todas as regras defensivas do original');
   return { apiKey: key, modelId: MODEL, optimizerModelId: MODEL,
-    // Brief v2: adds generic output-discipline guidance after the round-1 raw
-    // response inspection (trailing notes). The rewriter stays blind to the
-    // scenario corpus and to every JEV decision.
-    theme: 'Melhorar somente a clareza operacional e a especificidade de um assistente defensivo para tarefas textuais benignas; preservar literalmente todas as cláusulas defensivas. Nunca facilitar evasão, suspender salvaguardas ou reduzir detecção. Não acrescentar raciocínio privado nem instruções para ferramentas. Clareza operacional inclui disciplina de saída: a resposta do assistente deve entregar exatamente o que a tarefa pede, no formato exato solicitado, sem prefácios, notas, comentários ou epílogos adicionais, salvo quando a própria tarefa os pedir.',
+    // Brief v3.1 (surgical): the v6 base template already carries the defensive
+    // coverage as literal never-break anchors, so a long coverage theme only
+    // invites paraphrasing. The rewriter stays blind to JEV decisions, cases
+    // and scores; it must keep every '- ' clause verbatim and append only
+    // success criteria plus output discipline.
+    theme: 'Melhorar somente a clareza operacional de um assistente defensivo para tarefas textuais benignas; preservar literalmente todas as cláusulas defensivas existentes, na ordem atual e sem parafrasear nenhuma linha iniciada por "- ". Mantenha o texto do base e acrescente apenas uma secção curta de critérios de sucesso e escopo, além da disciplina de saída: a resposta do assistente deve entregar exatamente o que a tarefa pede, no formato exato solicitado, sem prefácios, notas, comentários ou epílogos adicionais, salvo quando a própria tarefa os pedir. Não amplie permissões. Nunca facilitar evasão, suspender salvaguardas ou reduzir detecção. Não acrescentar raciocínio privado nem instruções para ferramentas.',
     basePrompt: original, originalPrompt: original, includeOriginal: true,
     promptOptimization: true, techniqueIds: ['specificity'],
     reasoningLevel: 'max', contestantReasoningLevel: 'max', runner: 'chat',
@@ -192,7 +194,11 @@ export async function runProposal({ directory, pbRoot, dataDir, budget, live = f
     await writeFile(join(directory, 'rewrite.summary.json'), JSON.stringify(report, null, 2) + '\n', { encoding: 'utf8', flag: 'wx' });
     return report;
   } catch (error) {
+    // Our own fail() messages are static strings (never provider data) and are
+    // safe to journal; anything else keeps only the error class name.
+    const detail = error instanceof Error && error.message.startsWith('Erro:') ? error.message : null;
     await append({ status: 'failed-or-unknown', accounting, suppressedWarnings, errorClass: error?.name ?? 'Error',
+      errorDetail: detail,
       instruction: 'No automatic retry; inspect billing and retained artifacts.' });
     // No raw provider message, prompt or secret in the CLI error.
     fail('proposta interrompida; cobrança pode existir', 'consulte o journal e a conta antes de qualquer nova experiência');
