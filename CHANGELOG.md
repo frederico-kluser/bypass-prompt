@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   at release time (see `cliff.toml` and the release automation in `.github/workflows/`).
 - Compare views: <https://github.com/frederico-kluser/bypass-prompt/compare/>
 
+## [0.2.1](https://github.com/frederico-kluser/bypass-prompt/compare/v0.2.0...v0.2.1) (2026-11-04)
+
+
+### Features
+
+* **evals:** ronda 3 com familias de gatilho e template v6 ([#10](https://github.com/frederico-kluser/bypass-prompt/issues/10)) ([fa9b7be](https://github.com/frederico-kluser/bypass-prompt/commit/fa9b7be4b2bfd0d5317f05e6ed2a040cfba6b8b4))
+
 ## [0.2.0](https://github.com/frederico-kluser/bypass-prompt/compare/v0.1.0...v0.2.0) (2026-11-04)
 
 
