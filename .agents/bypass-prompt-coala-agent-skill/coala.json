@@ -1,0 +1,22 @@
+{
+  "coala_manifest": 1,
+  "project": "bypass-prompt",
+  "skill": "bypass-prompt-coala-agent-skill",
+  "db": "memory/coala.sqlite",
+  "engine": {
+    "file": "scripts/coala.py",
+    "version": "3.0.0",
+    "sha256": "8ee504ae0b9df23a9b0d062cd7acb8c7767da63b5681771bfeccb66720281c81"
+  },
+  "schema_version": 4,
+  "git_policy": "ignore",
+  "installer": "coala-agent-skill/scripts/coala-install.py",
+  "installed_at": "2026-11-04T09:30:57+00:00",
+  "updated_at": "2026-11-04T09:30:57+00:00",
+  "managed": {
+    "SKILL.md": "1a504630519099a763c10e48d170a4c08709400702492e8e1c634c58ab45ba9b",
+    "memory/.gitignore": "5941079484623004d0493eda784610b14f22d89d4a7473df50f514a8a3b044d4",
+    "references/schema.md": "b9160e5d205a47cf3987e58e402a4f4b3fa41f187573aae4a23a9ec398c22cc1",
+    "scripts/coala.py": "8ee504ae0b9df23a9b0d062cd7acb8c7767da63b5681771bfeccb66720281c81"
+  }
+}

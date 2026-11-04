@@ -1,0 +1,70 @@
+{
+  "_doc": "Fontes do material do projeto para `coala.py sync`. rules: mode markdown|text|whole|pdf · type episodic|semantic|procedural · origin owner|agent|untrusted|system · tags aceitam {stem} {name} {dir} {rule}; a primeira regra que apanha um ficheiro ganha. code: o catálogo de código (símbolos por ficheiro) é automático — `include`/`exclude` são globs, `enabled: false` desliga. Ver references/instalar.md da coala-agent-skill.",
+  "version": 2,
+  "key_prefix": "proj",
+  "path_prefix": "",
+  "exclude": [],
+  "rules": [
+    {
+      "name": "readme",
+      "include": [
+        "README.md"
+      ],
+      "mode": "markdown",
+      "type": "semantic",
+      "origin": "agent",
+      "tags": "docs,readme"
+    },
+    {
+      "name": "raiz",
+      "include": [
+        "CHANGELOG.md",
+        "CONTRIBUTING.md",
+        "SKILL.md"
+      ],
+      "mode": "markdown",
+      "type": "semantic",
+      "origin": "agent",
+      "tags": "docs,{stem}"
+    },
+    {
+      "name": "estudo-interno",
+      "include": [
+        "pesquisas/2026-11-04-estudo-tecnico-guardrails-anatomia-bypass-defesa.md"
+      ],
+      "mode": "markdown",
+      "type": "semantic",
+      "origin": "owner",
+      "tags": "pesquisa,estudo-tecnico,{stem}"
+    },
+    {
+      "name": "referencias",
+      "include": [
+        "references/*.md"
+      ],
+      "mode": "markdown",
+      "type": "semantic",
+      "origin": "agent",
+      "tags": "docs,references,{stem}"
+    },
+    {
+      "name": "pesquisas",
+      "include": [
+        "pesquisas/*.md"
+      ],
+      "mode": "markdown",
+      "type": "semantic",
+      "origin": "agent",
+      "tags": "pesquisa,dossie,{stem}"
+    }
+  ],
+  "code": {
+    "enabled": true,
+    "include": [],
+    "exclude": []
+  },
+  "graph": {
+    "entities": [],
+    "edges": []
+  }
+}

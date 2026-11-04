@@ -37,10 +37,19 @@ jobs:
           python-version: "3.12"
 
       - name: Compila todos os módulos
-        run: python -m py_compile scripts/bypass.py scripts/strategies.py scripts/harden.py
+        run: python -m py_compile scripts/bypass.py scripts/strategies.py scripts/harden.py scripts/defesa.py
 
       - name: Checklist de hardening nos templates
-        run: python scripts/harden.py render --template corporativo-pt --out template.md && python scripts/harden.py check --file template.md
+        run: |
+          for t in corporativo-pt corporativo-en agentico-pt; do
+            python scripts/harden.py render --template "$t" --out "template-$t.md"
+            python scripts/harden.py check --file "template-$t.md"
+          done
+
+      - name: Pipeline de defesa e taxonomia
+        run: |
+          python scripts/bypass.py pipeline > /dev/null
+          python scripts/bypass.py taxonomy --json > /dev/null
 
   test:
     name: Selftest (${{ matrix.python }})
