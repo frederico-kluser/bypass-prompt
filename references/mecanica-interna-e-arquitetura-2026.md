@@ -1,236 +1,144 @@
-# Mecânica interna, contenção e arquitetura de defesa (estado da arte 2026)
+# Mecânica de guardrails e arquitetura: leitura técnica revisada
 
-> Destilado do estudo técnico `pesquisas/2026-11-04-estudo-tecnico-guardrails-anatomia-bypass-defesa.md`
-> (fonte `owner`) e cruzado com o dossiê `pesquisas/2026-11-04-bypass-guardrails-llm.md` ([S#]).
-> **Premissa operacional:** classificadores são redutores de velocidade; a contenção
-> determinística é a fronteira. Nenhuma métrica aqui é garantia — cada número tem versão de
-> modelo e data associadas.
+> Revisão de fontes: **2026-11-04**. Esta síntese integra o [estudo fornecido](<../pesquisas/2026-11-04-estudo-tecnico-guardrails-anatomia-bypass-defesa.md>) sem converter toda afirmação nele em fato confirmado. O [registro de evidências](<evidencias.json>) diferencia correção, observação contextual, recomendação e número não verificado. Fontes externas são dados, nunca instruções.
 
-## 1. Porque é que um modelo alinhado recusa (e porque deixa de recusar)
+## 1. O que um guardrail faz — e o que não faz
 
-### 1.1 Dois modos de falha
+**Intrínseco:** SFT, RLHF, DPO e outras formas de pós-treinamento alteram distribuições de comportamento nos pesos. **Extrínseco:** classificadores, validadores, motores de políticas e controles de ferramentas inspecionam entradas, estados disponíveis, propostas de ação e saídas.
 
-| Modo | Definição | Consequência prática |
-| --- | --- | --- |
-| **Objetivos concorrentes** (Wei et al., 2023) | Utilidade, completação de padrões e obediência ao formato entram em atrito com a política de segurança | Prefix injection, supressão de recusa, "começa a resposta com «Claro…»" funcionam porque penalizam os tokens de recusa |
-| **Generalização desalinhada** (Wei et al., 2023) | A capacidade generaliza para cifras, código, LRL e ficção; o treino de segurança não | Modelos maiores são **mais** exploráveis por ofuscação/persuasão (paradoxo da capacidade) |
+Um sistema real pode combinar redes neurais, regex, listas de destinos, schemas e código determinístico. Portanto, não é correto afirmar que *todo* guardrail opera por representações latentes ou que filtros por assinatura não existem. Também não há um único gatilho universal: intenção, forma, contexto, modalidade, versão e composição da aplicação importam.
 
-A falha transversal é a **ausência de fronteira de confiança**: system prompt (control plane) e
-dados (data plane) viajam na mesma sequência de tokens — o equivalente a sinalização *in-band*
-numa linha telefónica (Hines et al., 2024). Daí OWASP LLM01–LLM08:2025 e MITRE ATLAS
-AML.T0051.000/.001, T0054, T0056, T0057.
+Classificadores são sensores probabilísticos úteis. A fronteira de contenção deve ser imposta por mecanismos externos de identidade, autorização, capacidades, isolamento, egress e integridade de dados. “Determinístico” descreve como uma regra é aplicada, **não prova que a regra/implementação esteja correta**.
 
-### 1.2 A direção de recusa é linear e causal
+## 2. Causas-raiz e interpretabilidade
 
-Arditi et al. (2024), 13 modelos open-weight:
+### 2.1 Objetivos concorrentes e generalização desalinhada
 
-$$\mathbf{r} = \mu_{\text{harmful}} - \mu_{\text{harmless}}, \qquad \hat{\mathbf{r}} = \mathbf{r}/\|\mathbf{r}\|$$
+Wei, Haghtalab e Steinhardt descrevem:
 
-estimado numa camada intermédia e posição pós-instrução com apenas **128 + 128** prompts.
+- **Competing objectives:** utilidade, completação de padrões e seguimento de instruções podem entrar em conflito com objetivos de segurança. Prefixos afirmativos e proibição lexical de recusa são exemplos de pressão, não garantias de sucesso.
+- **Mismatched generalization:** capacidades podem generalizar para cifras, código, idiomas e contextos pouco cobertos pelo treino de segurança. Modelos mais capazes podem acompanhar transformações mais difíceis, mas isso não estabelece uma lei de que “maior é sempre menos seguro”.
 
-**Ablação direcional (abliteration)** — remove a componente da recusa em todas as camadas/posições:
+O eixo instrutivo é o **mecanismo causal hipotetizado**, não a criação de uma lista de palavras proibidas. Ver [taxonomia](<taxonomia-e-tecnicas.md>).
 
-$$\mathbf{x} \leftarrow \mathbf{x} - (\mathbf{x}\cdot\hat{\mathbf{r}})\,\hat{\mathbf{r}}$$
+### 2.2 Direção mediadora de recusa (E06)
 
-- Anula a recusa no **JailbreakBench** sem ajuste fino por gradiente.
-- Preserva MMLU, ARC e GSM8K; regride **TruthfulQA** (a direção sobrepõe-se a desinformação).
-- **Adição de ativação** (somar $\mathbf{r}$) faz o modelo recusar pedidos inócuos do Alpaca.
-- Sufixos adversariais suprimem mecanicamente a propagação de $\hat{\mathbf{r}}$ nas cabeças de atenção.
+Arditi et al. estudaram **13 modelos conversacionais abertos até 72B**, identificando uma direção mediadora de recusa no fluxo residual. A notação do estudo é:
 
-**Implicação de defesa:** segurança não é um "filtro" externo ao modelo; é uma direção no fluxo
-residual. Modelos com pesos abertos podem ser "abliterados"; portanto **proveniência de pesos,
-hash de artefactos e re-teste pós-quantização/LoRA** são controlos de supply chain, não burocracia.
-Para modelos fechados, o equivalente defensivo é a sonda de ativação interna (CC++, §3.3).
+$$r=\mu_{harmful}-\mu_{harmless}, \qquad \hat r=r/\|r\|.$$
 
-## 2. Anatomia dos vetores (o que a defesa tem de intercetar)
+A intervenção de projeção investigada pode ser expressa como:
 
-### 2.1 Sete famílias de mecanismo — ASR empírica (Guarding the Guardrails, 2025–2026)
+$$x' = x-(x\cdot\hat r)\hat r.$$
 
-| Família | ASR geral | ASR tarefas selecionadas | Sinal de deteção primário |
-| --- | --- | --- | --- |
-| Impersonação / cenários ficcionais | 14,3 % | 11,3 % | persona, "divisão antagónica", enquadramento académico/jogo |
-| Escalonamento de privilégios | 12,5 % | 13,8 % | `[SYSTEM OVERRIDE]`, root/debug, política falsa em XML/JSON/INI |
-| Persuasão | **17,1 %** | 12,5 % | autoridade normativa, urgência, reciprocidade, coerção |
-| Sobrecarga cognitiva | 13,7 % | 10,9 % | decomposição X+Y+Z, distratores, saturação de contexto |
-| Codificação / ofuscação | 7,8 % | **3,2 %** | invisible chars, Base64, homóglifos, ASCII art, LRL |
-| Conflito de objetivos | 13,2 % | 12,5 % | prefixo afirmativo obrigatório, proibição de recusa |
-| Envenenamento de dados | 16,9 % | **14,9 %** | histórico fabricado, many-shot, RAG/tool poisoning |
+As intervenções causais estudadas incluem remoção/adicionamento dessa direção e análise da supressão de sua propagação por sufixos. Isso fornece evidência mecanística **nos modelos e avaliações estudados**, não uma descrição completa da segurança de todo modelo. Recusa não equivale a ausência de capacidade nociva nem a contenção das ferramentas.
 
-Leituras que mudam prioridades:
+**Consequência defensiva:** verificar procedência/hashes de pesos e adaptadores, tokenizer, quantização e mudanças de pós-treinamento. O projeto documenta esse vetor, mas **não altera pesos nem instala circuit breakers ou sondas**.
 
-1. **Ofuscação é a família menos eficaz** (3,2 % nas tarefas selecionadas) apesar de concentrar a
-   atenção dos filtros regex — o esforço defensivo está mal alocado.
-2. **Persuasão, envenenamento e impersonação** lideram; a impersonação está em **51 %** dos
-   prompts analisados pela SilentForce, com 15,1 % de sucesso.
-3. **Ataques compostos** (≥ 5 subtécnicas no mesmo prompt) são a forma dominante dos jailbreaks
-   eficazes.
-4. Um referencial taxonómico no contexto do classificador sobe a deteção de **65,9 % → 78,0 %**
-   (GPT-5), recuperando 14,3 % de ataques que passariam — a taxonomia é ela própria um controlo.
+### 2.3 Fronteira entre controle e dados
 
-### 2.2 Eficácia por classe de ataque (com a ressalva de versão)
+A analogia *in-band* ajuda a compreender a mistura de instruções e conteúdo numa sequência interpretada pelo modelo. Porém, APIs possuem papéis/canais reais: não se deve negar sua existência nem afirmar que uma tag no texto cria um canal privilegiado.
 
-| Classe | ASR observada | Nota |
-| --- | --- | --- |
-| Pedido direto sem técnica | 1,9 % (selecionadas) / 6,1 % (geral) | baseline de referência |
-| Estratégia estruturada de turno único | 13,9 % – 27,0 % | intervalo de avaliações padronizadas |
-| Multi-turno / persuasivo / amostragem / CoT | 60 % – >95 % | Crescendo, Bad Likert, Echo Chamber, PAP, H-CoT |
-| Guardrail de saída isolado (sem alinhamento) | interceta < 2 % | não é camada de segurança |
+Uma mensagem legítima do usuário pode conter instruções subordinadas **e** citações como dados. Documento, página, e-mail, memória recuperada, campo de fatura e saída de ferramenta não ganham autoridade por se parecerem com `SYSTEM`, `task_summary` ou uma política XML.
 
-### 2.3 Técnicas que a taxonomia de 2026 acrescenta (e o que testam)
+Separação probabilística no modelo precisa ser acompanhada de fronteiras reais na aplicação. Histórico fabricado, resumo assinado mas falso e descrição MCP comprometida continuam exigindo políticas externas.
 
-| Técnica | Mecanismo | Números publicados | Defesa que a trava |
-| --- | --- | --- | --- |
-| **Policy Puppetry** (HiddenLayer, abr. 2025) | Política de sistema falsa em XML/JSON/INI + guião TV; o modelo obedece a "config" | system prompt extraído em GPT-4/4o/o1, Claude 3.5/3.7, Gemini 1.5/2.0, Llama 3/4, DeepSeek, Qwen, Mistral (por versão) | anti-mimetismo no prompt + validação determinística de origem |
-| **Dr. House** (abr. 2025) | Persona canónica anti-ética (rejeita comités de ética) + "caso clínico urgente" | 85–95 % em compilações de red team | anti-persona + política com escala explícita |
-| **Involuntary Jailbreak** (ago. 2025) | Declara remoção de segurança por override de hardware/firmware | conformidade direta sem narrativa | hierarquia de instruções + deteção de autoridade alegada |
-| **Unicode Tag Smuggling** (Goodside; ASCII Smuggler, jan. 2024) | U+E0000–U+E007F mapeiam ASCII, invisíveis no ecrã, lidos pelo tokenizer | evasão até 100 % contra 6 guardrails (Mindgard + ACL 2025) | NFKC + strip de tags/zero-width/bidi + inspeção multi-vista |
-| **Typoglycemia / homóglifos** | embaralhar letras internas / cirílico | idem (até 100 % contra PromptGuard/Azure Prompt Shield) | normalização + classificador robusto a ruído |
-| **ArtPrompt** (ACL 2024) | palavra-chave em arte ASCII | 36 % média (Gemini 60 %) | decodificação/visão do artefacto antes do matching |
-| **ASCII Attack** (2026) | pedido legível + glifos, "crítica de estilo artístico" | — | proibir crítica estética de arte ASCII no prompt |
-| **CipherChat / SelfCipher** (2024) | cifra ensinada no contexto | quase total no GPT-4 | inspeção multi-vista + proibição de cifra não autorizada |
-| **Jogos de língua sintética** (2024) | língua inventada no diálogo | 93 % GPT-4o | deteção de deriva linguística |
-| **LRL** (Yong et al., 2023) | zulu, gaélico, hmong, guarani | <1 % EN → 79 % GPT-4 | re-verificação semântica na língua de origem |
-| **CodeAttack** (Ren et al., 2024) | payload em estruturas de código | >80 % GPT-4/Claude-2/Llama-2 | análise de artefactos de código |
-| **DrAttack / FlipAttack** | fragmentação + remontagem / inversão | — | reassembly antes de classificar |
-| **I-GCG** (2024) | multi-coordenada + templates | ~400 passos, 100 % em Vicuna/Guanaco/Llama-2/Mistral | perplexidade + auditoria de saída |
-| **SM-GCG** (2025) | gradiente em 5 espaços | +10–15 pp sobre GCG | perplexidade + circuit breaker |
-| **Best-of-N** (2024) | amostragem estocástica em massa | 89 % GPT-4o / 78 % Claude 3.5 (N=10.000); 41 % (N=100) | orçamento de sessão + deteção de reamostragem |
-| **PAP** (ACL 2024) | paráfrase persuasiva (40 técnicas) | 92 % em 3 tentativas; 60 % GPT-4 vs melhor defesa adaptativa | classificador de intenção + política imune a enquadramento |
-| **Crescendo** (USENIX 2024/25) | escalonamento citando as próprias respostas | 63,2 % ASR / 91 % cobertura HarmBench; <5 turnos | estado de sessão + orçamento de violações |
-| **Echo Chamber** (NeuralTrust, 2025) | amplificação das próprias saídas, sem termo inseguro | >90 % em GPT-4/Gemini; GPT-5 safe completions em ~24 h | deteção de deriva semântica + revisor humano |
-| **Skeleton Key** (MSRC, 2024) | "aumentar" diretrizes + disclaimer | 7 modelos; GPT-4 cede via system message | anti-Skeleton Key + canal de entrega autenticado |
-| **Deceptive Delight** (Unit 42, 2024) | sanduíche de distração em 3 turnos | ~65 % | estado multi-turno + tópico sensível isolado |
-| **Bad Likert Judge** (Unit 42, 2024/25) | o modelo avalia respostas e preenche o topo da escala | +60 pp; ~71,6 % em 6 modelos; filtros externos cortam ~89,2 % | proibir geração de exemplos nocivos em rubricas |
-| **CCA** (MSRC, 2025) | histórico fabricado em APIs stateless | — | proveniência/assinatura do histórico; estado no servidor |
-| **MSJ** (Anthropic, NeurIPS 2024) | 128–256+ shots no contexto | lei de potência; slope maior em modelos maiores | orçamento de tokens + deteção de turnos falsos |
-| **H-CoT** (Duke/CMU, 2025) | traço de raciocínio falso "já verificado" | recusa <2 % em o1/o3 (Malicious-Educator) | anti-H-CoT + verificação independente de política |
-| **EchoLeak** (CVE-2025-32711) | e-mail → XPIA bypass → markdown reference-style → imagem → proxy Teams | CVSS 9,3, zero-click | sanitização de markdown/imagem + controlo de egress |
-| **Morris II / RAGworm** (CCS 2025) | worm auto-replicante em RAG (texto ou imagem FGSM) | >90 % até ao 11.º hop; 64 % no 20.º | DonkeyRail + proveniência + quarentena |
-| **Tool Output Mimicry** (Ai-EGIS, FinBot CTF 19/19) | falsifica `task_summary`/instrução do orquestrador num campo de utilizador | pagamento fraudulento com 4 camadas ativas | assinatura criptográfica de resumos + política determinística |
-| **MCP tool poisoning** | descrição de ferramenta alterada lê-se como sistema | — | assinar descrições, read-only em produção, rug-pull pinning |
-| **Delegação (delayed zero-click RCE)** | system prompt manda "processar instruções nos documentos" | execução semanas depois | remover instruções de roteamento do prompt + sandbox de ferramentas |
-| **Fine-tuning / LoRA** (Qi et al., ICLR 2024) | 100 exemplos maliciosos, ou dataset 100 % benigno | Shadow Alignment; deriva de embeddings mesmo com p=0 | proveniência de adaptadores + re-teste de segurança |
-| **Glitch tokens** (Land & Bartolo, EMNLP 2024) | tokens sub-treinados (2 % menos frequentes) | alucinação/falha imprevisível | varrimento de tokenizer ao introduzir modelo |
+## 3. Taxonomia e métricas corrigidas (E01–E02)
 
-### 2.4 As três ressalvas que invalidam leituras ingénuas de ASR
+O artigo citado é **Giarrusso, Sorokoletova et al., “Guarding the Guardrails: A Taxonomy-Driven Approach to Jailbreak Detection”, arXiv:2510.13893v2, 2026-02-04**.
 
-1. **Versão + data.** Toda a ASR está presa à versão do modelo e à data; correções contínuas
-   nos endpoints movem os números.
-2. **StrongREJECT.** Juízes automatizados lenientes contam respostas incoerentes ou não
-   acionáveis como sucesso → ASRs académicas sistematicamente sobreavaliadas.
-3. **Custo cognitivo.** Jailbreaks multi-passo degradam o desempenho no **GPQA Diamond de 74 %
-   para 32 %** (red teaming Anthropic): o ataque "funciona" e o modelo fica inútil para a tarefa.
-   Meça sempre **utilidade sob ataque**, não só recusa.
+A Tabela 1 mede sucesso por conversa no **Minerva-7B-instruct-v1.0**, em 1.364 ramos adversariais com 185 sucessos, obtidos por 48 mestrandos em sessões de duas horas, principalmente em italiano e parte em inglês. As famílias **coocorrem**; o denominador varia por rótulo.
 
-## 3. Defesa: quatro controlos de modelo + pipeline de cinco camadas
+| Família científica | Conversas com rótulo | Sucessos | SR publicada, arredondada |
+| --- | ---: | ---: | ---: |
+| Impersonação/ficção | 696 | 105 | 15,1% |
+| Escalonamento de privilégios | 100 | 11 | 11,0% |
+| Persuasão | 250 | 36 | 14,4% |
+| Sobrecarga cognitiva | 289 | 38 | 13,1% |
+| Codificação/ofuscação | 139 | 13 | 9,4% |
+| Conflito de objetivos | 624 | 74 | 11,9% |
+| Envenenamento de dados/contexto | 198 | 34 | 17,2% |
 
-### 3.1 Instruction Hierarchy (Wallace et al., OpenAI 2024)
+As percentagens 14,3/17,1/7,8 etc. e a coluna “tarefas selecionadas” do estudo fornecido **não correspondem a essa tabela do v2**. Não tratá-las como um ranking universal, nem substituir uma tabela corrigida por uma narrativa de “persuasão sempre vence”. O SR sem técnica é 7/110, aproximadamente 6,4%, no mesmo protocolo. Ataques automáticos são um **eixo auxiliar ortogonal**, não uma oitava família causal.
 
-Sistema > developer > utilizador > dados/ferramentas, treinado com *Context Synthesis* (instruções
-alinhadas) e *Context Ignorance* (conflituantes).
+O ganho de detecção GPT-5 de **60/91 (65,9%) para 71/91 (78,0%)** foi medido apenas em diálogos com jailbreak já bem-sucedido, excluindo ataques de infraestrutura. Foram 13 recuperados e dois perdidos, ganho líquido de 11/91, aproximadamente 12,1 pontos percentuais. Sem benignos, **FPR não medida**. Não é acurácia global nem ganho líquido de 14,3pp.
 
-| Métrica | Antes | Depois |
-| --- | --- | --- |
-| Robustez global (GPT-3.5) | — | **+63 %** |
-| Extração de system prompt (TensorTrust) | 32,8 % | **95,9 %** resistente |
-| Jailbreaks não vistos no treino | 37,4 % | **71,2 %** |
-| Conformidade em sondagens benignas (over-refusal) | 85,2 % | 75,0 % |
+Os nove agrupamentos de [strategies.py](<../scripts/strategies.py>) mantêm compatibilidade operacional e adicionam multi-turno/raciocínio como eixos úteis. Suas 50 templates **não reproduzem fielmente** o protocolo de todos os artigos de mesmo nome. As notas quantitativas individuais remanescentes são históricas/não revalidadas até revisão específica.
 
-O custo é over-refusal: meça-o com OR-Bench-like antes de subir a regra.
+## 4. Defesas no modelo e no prompt
 
-### 3.2 Spotlighting dinâmico (Hines et al., Microsoft 2024)
+### 4.1 Hierarquia de instruções
 
-| Variante | ASR de IPI | Robustez ao atacante que conhece o formato |
-| --- | --- | --- |
-| Delimitação estática | ~metade do baseline | fraca (tags conhecidas são reproduzíveis) |
-| **Datamarking dinâmico** (k-gram de k chars de um alfabeto de N símbolos, intercalado em cada palavra) | **>50 % → <2 %** | **1/N^k** de adivinhação por chamada, mesmo com prompt vazado |
-| Codificação unidirecional (Base64 do externo) | comparável | boa, mas quebra legibilidade para o modelo |
+Treinar um modelo para privilegiar canais e ignorar conteúdo conflitante é diferente de apenas escrever “prioridade absoluta” num prompt. A aplicação deve instalar instruções no canal correto; delimitadores não podem sobrepor sistema/developer/usuário real.
 
-Regra: o marcador é gerado **por sessão/chamada**, nunca fixo no prompt.
+Medir utilidade e sobre-recusa separadamente. Perguntas sobre capacidades e explicações públicas de limites não devem ser bloqueadas por definição. O system prompt não deve conter credenciais nem servir como fronteira de confidencialidade.
 
-### 3.3 Circuit breakers (Zou et al., NeurIPS 2024) e CC++ (Anthropic 2025/ICLR 2026)
+### 4.2 Spotlighting (E07)
 
-| Controlo | Resultado publicado | Limite |
-| --- | --- | --- |
-| Representation Rerouting (LoRA 0–20, perda nas camadas 10/20, 150 passos, A100 ~20 min) | Forced function calling 87 %→**14 %**; LLaVA PGD 91,0 %→14,3 %; multilingue 19,3 %→3,5 %; BFCL 76,0 (vs 74,8) | atacante white-box adaptativo pode levar a robustez a **0 %** → precisa de isolamento de API |
-| Constitutional Classifiers v1 | 86 %→**4,4 %**; +23,7 % de inferência; +0,38 % falsas recusas | vulnerável a reconstrução em código e ofuscação de saída |
-| **CC++** (classificador de troca + sonda linear no estágio 1 + ensemble no 2) | **0,005 jailbreaks/1.000 consultas**; 0 universais em 1.700 h; **0,05 %** de bloqueio em produção (Sonnet 4.5); ~**1 %** de custo; **40×** mais barato que o classificador de troca isolado (8× vs cascata sem sondas) | tecnologia de fornecedor; sonda depende de acesso às ativações |
+Delimitação, datamarking e mudanças de representação ajudam o modelo a reconhecer a origem dos dados. Resultados como **menos de 2% de ASR** pertencem a experimentos específicos, não a qualquer agente corporativo.
 
-### 3.4 O pipeline de cinco camadas (com limiares acionáveis)
+- A transformação tem de ocorrer **no código da aplicação**; gerar um texto que a descreve não a aplica.
+- O marcador pode mudar por chamada, com geração segura e tratamento de colisões.
+- `1/N^k` é chance idealizada de adivinhação do marcador, não limite de sucesso de injeção.
+- **Base64 é reversível**, não “codificação unidirecional” criptográfica nem confidencialidade.
+- O atacante pode influenciar o modelo sem fechar tags ou adivinhar marcador algum.
 
-| # | Camada | Controlos e limiares | Ferramentas / latência |
-| --- | --- | --- | --- |
-| 1 | Borda L7 + normalização multi-vista | `NFKC`; remover `\u200B`–`\u200F`, `\u2060`, `\uFEFF`, bidi e **U+E0000–U+E007F**; decodificar Base64/Hex/ROT13 e correr assinaturas em todas as vistas | Agentgateway PromptGuard ~0 ms (L7, sem GPU); pré-processador <2 ms |
-| 2 | Perplexidade + RAG anti-worm + Spotlighting | janela 32 / stride 16 + comprimento em LightGBM; chunks 512 / overlap 64; datamarking k-gram por sessão | DonkeyRail (TPR 1,0 · FPR 0,017 · 7,6–38,3 ms); SmoothLLM em endpoints críticos |
-| 3 | Classificadores semânticos de entrada | pontuar todos os chunks e vistas; começar em **shadow/annotate** e só bloquear com dupla confirmação | Prompt Guard 2 22M (19,3 ms; 88,7 % recall @1 % FPR) / 86M (92,4 ms; 97,5 %); Azure Prompt Shields 52 ms; Lakera ~50 ms; LLM Guard 50–200 ms |
-| 4 | Runtime: sessão, CoT e guarda de ação | **recusa-reformulação**: `refusals ≥ 3` **e** `max_cosine > 0,85` contra prompts recusados; **many-shot**: turnos falsos ≥ 10 **ou** `input_tokens > tenant_p99`; **declive de escalonamento**: tendência positiva dos scores brutos nos últimos N turnos; auditar CoT contra *goal hijacking*; validar ferramentas em motor determinístico | LlamaFirewall (AlignmentCheck + PromptGuard 2 → ASR 1,75 %; CodeShield 96 % precisão / 79 % recall); Granite Guardian 4.1 8B (0,79 balanced accuracy em *function-call hallucination*); NeMo Guardrails 100–500 ms |
-| 5 | Saída, DLP, canários, renderização | **três alarmes**: (a) entrada limpa + saída sinalizada = bypass provável → bloquear e rever sessão; (b) língua/codificação inesperada (Base64/Hex); (c) canário na saída; redação regex + ruído diferencial em constantes numéricas de `task_summary`; bloquear `<img>` externo e links reference-style | Presidio 3–15 ms; Guardrails AI 50–300 ms (Pydantic/JSON); Qwen3Guard-Stream 0.6B–8B (119 línguas); OpenAI Moderation 192 ms (F1 0,899 limpo) |
+### 4.3 Circuit Breakers / Representation Rerouting
 
-**Porque nenhuma camada chega sozinha:** Azure Content Safety F1 0,928 em dados limpos cai para
-0,19–0,61 sob ataque; Qwen3Guard-8B 91,0 % → 33,8 % em ataques inéditos; Llama Guard 4 69 % recall
-/ 11 % FPR; na Unit 42 a configuração mais permissiva interceta **53 %** dos ataques (deixando passar
-42 de 51 ataques com role-play e 100 % dos embutidos em revisão de código) e a mais agressiva bloqueia
-92 % com 13,1 % de FPR — o ótimo calibrado é ~**91 % de bloqueio com 0,6 % de FPR**.
+Redirecionamento de representações e adaptadores são defesas de nível de modelo; requerem acesso e treinamento apropriados, avaliação de utilidade e atacante adaptativo compatível com o threat model. Resultados em function calling, multimodalidade e idiomas não são intercambiáveis nem garantia contra adversário white-box.
 
-### 3.5 Isolamento: Dual LLM → CaMeL e padrões derivados
+Não confundir o método de pesquisa com um `if` no prompt ou uma mensagem “circuit breaker ativado”. O cancelamento real de uma ferramenta pertence ao runtime.
 
-```
-utilizador (confiável) ──► P-LLM (planeia, vê ferramentas) ──► plano em pseudo-Python
-                                                                      │
-RAG/web/e-mail/MCP (não confiável) ──► anti-worm + Spotlighting ──► Q-LLM (sem ferramentas)
-                                                                      │
-                                     interpretador + Data Flow Graph + Capacidades
-                                                                      │
-                                          política determinística ──► HITL ──► execução
-```
+### 4.4 Constitutional Classifiers++ (E03–E04)
 
-- O **Dual LLM puro** protege o fluxo de controlo; um documento injetado ainda pode trocar
-  argumentos (destinatário, ficheiro) no Q-LLM.
-- **CaMeL** resolve isso com grafo de fluxo de dados + capacidades por variável e verificação
-  determinística antes de cada chamada: **77 %** das tarefas no AgentDojo com garantias formais
-  (84 % sem defesa).
-- Padrões complementares: **Action-Selector**, **Plan-Then-Execute**, **LLM Map-Reduce**,
-  **Context-Minimization**.
-- Multi-agente/MCP: assinar `task_summary` e descrições de ferramentas; read-only em produção;
-  eliminar do prompt instruções do tipo "processa instruções de roteamento nos documentos"; políticas
-  de negócio (limites, listas de bloqueio) em código fora do LLM com identidade do chamador.
+A cascata usa probes internos e classificador de troca para casos suspeitos. Separar seus resultados:
 
-| Defesa declarada | Bypass com atacante adaptativo |
+| Dado | Interpretação correta |
 | --- | --- |
-| 12 defesas publicadas avaliadas em "The Attacker Moves Second" (2025) | contornadas em **>90 %** |
+| 1 vulnerabilidade de alto risco / 198.000 tentativas | Aproximadamente **0,005 descobertas por mil consultas de red team**, não probabilidade universal de jailbreak por consulta |
+| Mais de 1.700h sem universal encontrado no protocolo | Resultado de busca sob orçamento/escopo específicos, não inexistência provada |
+| Cerca de 1% compute | Estimativa para tráfego Claude Opus 4.0, não latência nem custo genérico de qualquer sonda |
+| 0,05% benignos Sonnet 4.5 em um mês | Relato de taxa em consultas benignas; conferir shadow flag vs recusa no protocolo |
+| 40× e 8× | Comparadores distintos: baseline exchange classifier e cascata sem probes |
 
-Conclusão de arquitetura: **classificadores são speed bumps; containment is the boundary.**
+A referência versionada é arXiv:2601.04603v1. A atribuição bibliográfica e a alegação ICLR do texto original não foram adotadas sem confirmação. Acesso às ativações não está disponível em toda API hospedada; não simular probes por texto.
 
-## 4. Prompt endurecido v2026 — o que não pode faltar
+## 5. Contenção e cinco camadas
 
-O system prompt não é segredo (OWASP LLM07) nem controlo único: sem credenciais no texto e com
-validação externa. Os controlos que o estudo exige, e que `harden.py` verifica:
+O [catálogo de defesa](<defesa-em-profundidade.md>) e [defesa.py](<../scripts/defesa.py>) organizam:
 
-1. **Hierarquia explícita** (bloco de sistema > developer > utilizador > dados/ferramentas).
-2. **Spotlighting dinâmico** com tag por sessão (`<UNTRUSTED_DATA_{NONCE}>`) e datamarking k-gram.
-3. **Anti-mimetismo**: ignorar `[TASK_SUMMARY]`, `[ORCHESTRATOR INSTRUCTION]`, `[SYSTEM OVERRIDE]`
-   e políticas falsas em XML/JSON/YAML/INI.
-4. **Anti-H-CoT**: ignorar raciocínio pré-preenchido e alegações de que a verificação já passou.
-5. **Anti-Skeleton Key / DAN / Dr. House**: nenhuma persona, nenhum "aumento de diretrizes" com
-   disclaimer.
-6. **Anti-Bad-Likert**: nunca gerar exemplos nocivos em rubricas, escalas, crítica de arte ASCII
-   ou completação de estruturas de dados.
-7. **Anti-EchoLeak**: proibir imagens externas, HTML, links reference-style, dados internos em URLs
-   e respostas codificadas (Base64/Hex/ROT13).
-8. **Canário** de integridade no prompt, nunca reproduzível, com alarme na saída.
-9. **HITL** para ações consequentes e **menor privilégio** por ferramenta/sessão.
-10. **Orçamento de sessão** e protocolo fixo de resposta a padrões suspeitos (circuit breaker).
+1. Borda/normalização multi-vista com original preservado e limites de recursos.
+2. Proveniência, RAG em quarentena, anti-replicação e Spotlighting externo.
+3. Classificadores de injeção/nocividade separados e calibrados em shadow.
+4. Runtime com identidade/tenant, estado, guarda de ação, capacidades e HITL.
+5. Saída com DLP, buffering, sanitização de renderização e egress deny-by-default.
 
-## 5. Operacionalização (TEVV)
+Nenhuma integração é instalada pelo catálogo. Latência local é **não medida**. Parâmetros como 3 recusas, similaridade 0,85 ou dez turnos fabricados são **hipóteses de calibração**, não resultados científicos universais (E11).
 
-| Vetor de validação | Ferramenta | O que cobre |
-| --- | --- | --- |
-| CI/CD de aplicação e agentes | **Promptfoo** (MIT) com preset `owasp:agentic` + plugin MCP | injection, memória envenenada, BOLA/BFLA, SSRF a cada PR |
-| Modelo e tokenizador | **NVIDIA garak** (Apache 2.0, 120+ sondas) | sondas estáticas/dinâmicas/adaptativas + glitch tokens ao introduzir modelo/LoRA/tokenizer |
-| Adversário adaptativo multi-turno | **Microsoft PyRIT** (MIT) | Crescendomation, Skeleton Key, TAP, 16 vulnerabilidades agênticas |
-| Medição | regras de higiene | nunca contar erros de infra como bloqueio; medir *safety score* e integridade de chamadas, não frases de recusa; reportar **pass@k** com **FPR** em controlos benignos |
-| Produção | observabilidade | logs separados modelo/guardrails, **scores contínuos** (não flags), canários, alarme de discrepância entrada-limpa/saída-suja |
+**Dual LLM:** Q-LLM lê dados externos sem ferramentas; P-LLM planeja sem ler texto hostil. Isso reduz influência sobre controle, mas argumentos extraídos podem continuar adulterados.
 
-Conformidade: ações **MEASURE 2.7**, **MEASURE 2.10**, **MS-2.5-006** e **MG-4.1-002** do **NIST AI
-600-1**; red teaming documentado como suporte de *safe harbor* (ex.: Texas AI statute,
-Sec. 552.105(e)).
+**CaMeL v2 (E05):** associa proveniência/capacidades a valores e medeia fluxo/ações no interpretador. Headline 77% de utility no AgentDojo versus 84% sem defesa, condicionado à versão. Pedido do usuário e memória confiáveis, políticas/labels corretos e mediação completa são pressupostos. Não garante veracidade de resumos, prevenção de phishing textual ou de todo canal lateral. A verificação formal do interpretador é explicitamente **trabalho futuro**.
+
+## 6. Três erros de engenharia a evitar
+
+- **Unicode:** NFKC é compatibilidade + composição, não conversão de todo “a” cirílico em latino. UTS39 é análise adicional; não destruir evidência, idioma ou identidade (E08).
+- **Criptografia:** assinatura valida origem/integridade sob hipóteses de chave/verificador, não verdade nem autorização. Usar envelope, schema, contexto, anti-replay e políticas externas (E16).
+- **Dados operacionais:** não aplicar ruído diferencial genericamente a valores de pagamento, destinatários, permissões ou limites. DP requer desenho formal em agregações apropriadas; integridade operacional exige valores exatos (E16).
+
+Auditoria genérica usa **evidência observável**, não CoT privado. Um resumo de raciocínio não é garantia de fidelidade ao cálculo interno nem prova de segurança.
+
+## 7. TEVV e normas sem falsa certificação
+
+O estudo cita Promptfoo, garak e PyRIT como ferramentas da literatura. **A etapa final adotada neste pedido é apenas o [Markdown /prompt-builder + JEV](<avaliacao-prompt-builder-jev.md>), sem execução**; esses frameworks não são tarefas adicionais.
+
+NIST AI 600-1 é perfil voluntário. MEASURE 2.7 cobre segurança/resiliência e MEASURE 2.10, privacidade. IDs de ações sem conferência direta do PDF e suposto safe harbor do Texas permanecem não confirmados nesta revisão (E13). Não derivar aconselhamento ou garantia jurídica de um checklist.
+
+Fixar snapshot da MITRE ATLAS: em **2026.10**, extração de system instructions e memória/contexto aparecem como **AML.T0085.003** e **AML.T0085.002**, após migração dos IDs antigos T0056/T0057. Injeção direta/indireta/triggered e jailbreak mantêm AML.T0051.000/.001/.002 e AML.T0054; tool poisoning é AML.T0110 (E14). OWASP é vocabulário de risco, não prova de que toda categoria tenha a mesma causa-raiz.
+
+## Fontes primárias principais
+
+- [Taxonomia v2](<https://arxiv.org/html/2510.13893v2>), [direção de recusa v3](<https://arxiv.org/abs/2406.11717v3>) e [StrongREJECT v2](<https://arxiv.org/abs/2402.10260v2>).
+- [Spotlighting](<https://arxiv.org/html/2403.14720v1>), [CC++ v1](<https://arxiv.org/html/2601.04603v1>), [relato CC++](<https://www.anthropic.com/research/next-generation-constitutional-classifiers>) e [CaMeL v2](<https://arxiv.org/html/2503.18813v2>).
+- [UAX15](<https://www.unicode.org/reports/tr15/>), [UTS39](<https://www.unicode.org/reports/tr39/>), [RFC4648](<https://www.rfc-editor.org/rfc/rfc4648>) e [Prompt Guard 2 model card](<https://huggingface.co/meta-llama/Llama-Prompt-Guard-2-86M/blob/main/README.md>).
+
+O [registro completo](<evidencias.json>) contém localizadores, unidades e limitações. Números não auditados não devem ser “confirmados por proximidade” de uma citação verificada.

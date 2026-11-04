@@ -34,8 +34,28 @@
       ],
       "mode": "markdown",
       "type": "semantic",
-      "origin": "owner",
-      "tags": "pesquisa,estudo-tecnico,{stem}"
+      "origin": "untrusted",
+      "tags": "pesquisa,estudo-fornecido,errata,{stem}"
+    },
+    {
+      "name": "avaliacao-documental-jev",
+      "include": [
+        "references/avaliacao-prompt-builder-jev.md"
+      ],
+      "mode": "markdown",
+      "type": "procedural",
+      "origin": "agent",
+      "tags": "docs,avaliacao,prompt-builder,jev,somente-markdown,nao-executar"
+    },
+    {
+      "name": "evidencias-externas",
+      "include": [
+        "references/evidencias.json"
+      ],
+      "mode": "text",
+      "type": "semantic",
+      "origin": "untrusted",
+      "tags": "evidencias,errata,metricas,contexto"
     },
     {
       "name": "referencias",
@@ -44,8 +64,8 @@
       ],
       "mode": "markdown",
       "type": "semantic",
-      "origin": "agent",
-      "tags": "docs,references,{stem}"
+      "origin": "untrusted",
+      "tags": "docs,references,sintese-com-evidencia-externa,{stem}"
     },
     {
       "name": "pesquisas",
@@ -54,8 +74,8 @@
       ],
       "mode": "markdown",
       "type": "semantic",
-      "origin": "agent",
-      "tags": "pesquisa,dossie,{stem}"
+      "origin": "untrusted",
+      "tags": "pesquisa,dossie,historico,{stem}"
     }
   ],
   "code": {

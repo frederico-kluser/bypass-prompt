@@ -97,11 +97,10 @@ def fragmentos_indexados(texto: str, n: int = 3) -> list:
 
 def _partes(texto: str, n: int = 3) -> list:
     """Divide o texto em n fragmentos (ordem natural, último pode ser vazio)."""
-    tam = max(1, len(texto) // n)
-    partes = [texto[i:i + tam] for i in range(0, len(texto), tam)][:n]
-    while len(partes) < n:
-        partes.append("")
-    return partes
+    if n < 1:
+        raise ValueError("n deve ser positivo")
+    # Fronteiras proporcionais preservam o resto; a versão antiga perdia o final.
+    return [texto[len(texto) * i // n:len(texto) * (i + 1) // n] for i in range(n)]
 
 
 def palavras_chave(texto: str) -> str:
@@ -155,7 +154,7 @@ REFS = {
     "shen2024": "Shen, X. et al. «Do Anything Now»: Characterizing and Evaluating In-The-Wild Jailbreak Prompts». S&P 2024, arXiv:2308.03625.",
     "zeng2024": "Zeng, Y. et al. «How Johnny Can Persuade LLMs to Jailbreak Them: Persuasive Adversarial Prompts». arXiv:2401.06373, 2024.",
     "russinovich2024": "Russinovich, M. et al. «Crescendo: Multi-Turn LLM Jailbreak Attack». USENIX Security 2025, arXiv:2404.01833, 2024.",
-    "anon2024manyshot": "Anil, E. et al. «Many-Shot Jailbreaking». Anthropic, arXiv:2404.02151, 2024.",
+    "anon2024manyshot": "Anil et al. «Many-Shot Jailbreaking». Anthropic, arXiv:2404.02151, 2024.",
     "chao2024pair": "Chao, P. et al. «Jailbreaking Black-Box Large Language Models in Twenty Queries» (PAIR). arXiv:2310.08419, 2024.",
     "mehrotra2024tap": "Mehrotra, A. et al. «Tree of Attacks: Jailbreaking Black-Box LLMs Automatically» (TAP). arXiv:2312.02119, 2024.",
     "yuan2024cipher": "Yuan, Y. et al. «GPT-4 Is Smart Enough to Be Safe: Stealthy Chat with LLMs via Cipher» (CipherChat). arXiv:2308.06463, 2024.",
@@ -174,7 +173,7 @@ REFS = {
     "google2024shieldgemma": "Zeng, W. et al. (Google). «ShieldGemma: Robust Safety Guard...». 2024.",
     "nvidia2024wildguard": "Han, S. et al. (NVIDIA). «WildGuard: Open One-Stop Moderation Tools for Safety Defenses». 2024.",
     "anthropic2025cc": "Anthropic. «Constitutional Classifiers: Defending Against Universal Jailbreaks». 2025.",
-    "hendrycks_spotlighting": "Hines, K. et al. (Microsoft). «Spotlighting Prompts and Inputs for LLM Applications». 2024.",
+    "hendrycks_spotlighting": "Hines, K. et al. «Defending Against Indirect Prompt Injection Attacks With Spotlighting». arXiv:2403.14720, 2024. Limites: E07.",
     "mazeika2024harmbench": "Mazeika, M. et al. «HarmBench: A Standardized Evaluation Framework for Automated Red Teaming and Robust Refusals». ICML 2024, arXiv:2402.04249.",
     "chao2024jbb": "Chao, P. et al. «JailbreakBench: An Open Robustness Benchmark for Jailbreaking Large Language Models». NeurIPS 2024 D&B, arXiv:2404.01318.",
     "taori2024orbench": "Cao, B. et al. «OR-Bench: An Over-Refusal Benchmark for Large Language Models». 2024.",
@@ -182,14 +181,14 @@ REFS = {
     "willison2023dual": "Willison, S. «The Dual LLM Pattern for Building AI Assistants That Can Resist Prompt Injection». 2023.",
     "qi2023finetune": "Qi, X. et al. «Fine-tuning Compromises Safety...». ICLR 2024, arXiv:2310.03693.",
     "huang2024quant": "Huang et al. «Quantization and Safety Alignment» (efeito da quantização no alinhamento). 2024.",
-    "aws2024deceptive": "AWS Security Blog. «How LLMs Can Be Manipulated with Multi-Turn Techniques (Deceptive Delight)». 2024.",
+    "aws2024deceptive": "Palo Alto Networks Unit 42. «Deceptive Delight». 2024. Nota quantitativa histórica não revalidada nesta revisão.",
     "lit2024shadowleak": "Radware. «ShadowLeak: Zero-Click Data Exfiltration via Deep Research Agents». 2025.",
     # --- acrescentos do estudo técnico de 2026 (proveniência owner) ---
     "arditi2024": "Arditi, A. et al. «Refusal in Language Models Is Mediated by a Single Direction». NeurIPS 2024, arXiv:2406.11717.",
     "wallace2024hierarchy": "Wallace, E. et al. «The Instruction Hierarchy: Training LLMs to Prioritize Privileged Instructions». OpenAI, 2024, arXiv:2404.13208.",
     "hines2024": "Hines, K. et al. «Defending Against Indirect Prompt Injection Attacks With Spotlighting». Microsoft, 2024, arXiv:2403.14720.",
     "zou2024circuit": "Zou, A. et al. «Improving Alignment and Robustness with Circuit Breakers». NeurIPS 2024, arXiv:2406.04313.",
-    "sharma2026ccpp": "Sharma, M. et al. «Constitutional Classifiers++: Efficient Automated Adversarial Robustness». Anthropic, 2025 / ICLR 2026.",
+    "sharma2026ccpp": "Cunningham, H., Wei, J. et al. «Constitutional Classifiers++». arXiv:2601.04603v1, 2026. Contexto e limites: evidências E03/E04.",
     "debenedetti2025camel": "Debenedetti, E. et al. «Defeating Prompt Injections by Design» (CaMeL). Google DeepMind / ETH Zurich, 2025, arXiv:2503.18813.",
     "hiddenlayer2025policy": "HiddenLayer. «Policy Puppetry: A Universal Bypass for LLM Guardrails». Abril 2025.",
     "unit42badlikert": "Palo Alto Networks Unit 42. «Bad Likert Judge: A Novel Multi-Turn Technique to Jailbreak LLMs». Dez. 2024 / Jan. 2025.",
@@ -238,18 +237,41 @@ FAMILIAS = {
     "raciocinio": "Sequestro de raciocínio — traços de CoT falsos convencerem o modelo de que a verificação já passou (H-CoT)",
 }
 
-# ASR empírica por família no estudo de 2026 (Guarding the Guardrails / estudo interno).
-# Valores publicados, dependentes de versão de modelo e data — não são garantias.
+# Sete famílias científicas != nove agrupamentos operacionais deste CLI.
+# Submecanismos são guia de cobertura do estudo, não uma nova alegação de ASR.
+FAMILIAS_MECANISMO = [
+    {"id": "F1", "nome": "Impersonação e cenários ficcionais", "operacional": "persona",
+     "submecanismos": ["role play/persona/IA virtual", "divisão antagônica", "enquadramento acadêmico, jogo e ficção"]},
+    {"id": "F2", "nome": "Escalonamento de privilégios", "operacional": "privilegio",
+     "submecanismos": ["admin/developer/root alegados", "simulação de modelo irrestrito", "autoridade tipográfica/política falsa"]},
+    {"id": "F3", "nome": "Persuasão", "operacional": "persuasao",
+     "submecanismos": ["lógica/evidência/autoridade", "emoção/reciprocidade/compromisso", "coerção/repetição/urgência"]},
+    {"id": "F4", "nome": "Sobrecarga cognitiva", "operacional": "sobrecarga",
+     "submecanismos": ["distratores", "decomposição matemática", "desvio de tarefa e saturação de contexto"]},
+    {"id": "F5", "nome": "Codificação e ofuscação", "operacional": "ofuscacao",
+     "submecanismos": ["homóglifos/typoglycemia/token splitting", "cifras/Unicode/ASCII/línguas", "reescrita semântica e conteúdo embutido"]},
+    {"id": "F6", "nome": "Conflito de objetivos", "operacional": "conflito",
+     "submecanismos": ["prefixo afirmativo", "completion masking/supressão de recusa", "responsabilidade alegada e objetivos justapostos"]},
+    {"id": "F7", "nome": "Envenenamento de dados/contexto", "operacional": "indireto",
+     "submecanismos": ["escalonamento incremental/many-shot", "premissas falsas", "RAG/ferramentas e memória contaminados"]},
+]
+
+# Tabela 1 de Giarrusso, Sorokoletova et al. v2 (E01): SR por conversa,
+# Minerva-7B-instruct-v1.0. Rótulos coocorrem; NÃO são ASRs das nossas templates.
+# A coluna 'selecionadas' antiga não corresponde ao v2 e permanece null.
+_SR_V2 = {"persona": (0.151, 696, 105), "privilegio": (0.110, 100, 11),
+          "persuasao": (0.144, 250, 36), "sobrecarga": (0.131, 289, 38),
+          "ofuscacao": (0.094, 139, 13), "conflito": (0.119, 624, 74),
+          "indireto": (0.172, 198, 34)}
 ASR_FAMILIA = {
-    "persona": {"geral": 0.143, "selecionadas": 0.113, "nota": "51% dos prompts da SilentForce; 15,1% de sucesso"},
-    "persuasao": {"geral": 0.171, "selecionadas": 0.125, "nota": "família humana com maior ASR; PAP >92% em 3 tentativas"},
-    "privilegio": {"geral": 0.125, "selecionadas": 0.138, "nota": "única família que sobe nas tarefas selecionadas (com ofuscação a descer)"},
-    "sobrecarga": {"geral": 0.137, "selecionadas": 0.109, "nota": "decomposição e saturação de contexto"},
-    "ofuscacao": {"geral": 0.078, "selecionadas": 0.032, "nota": "a mais baixa apesar de concentrar filtros regex"},
-    "conflito": {"geral": 0.132, "selecionadas": 0.125, "nota": "prefixo obrigatório + supressão de recusa"},
-    "indireto": {"geral": 0.169, "selecionadas": 0.149, "nota": "IPI/RAG/MCP; EchoLeak e Morris II em produção"},
-    "multiturno": {"geral": None, "selecionadas": None, "nota": "classe multi-turno: 60% a >95% em Crescendo/Bad Likert/Echo Chamber"},
-    "raciocinio": {"geral": None, "selecionadas": None, "nota": "recusa <2% em o1/o3 sob H-CoT (Malicious-Educator)"},
+    f: {"geral": _SR_V2[f][0] if f in _SR_V2 else None,
+        "selecionadas": None, "evidencia_id": "E01", "fonte_versao": "2510.13893v2, Tabela 1",
+        "modelo": "Minerva-7B-instruct-v1.0",
+        "n_conversas": _SR_V2[f][1] if f in _SR_V2 else None,
+        "sucessos": _SR_V2[f][2] if f in _SR_V2 else None,
+        "nota": "SR contextual com rótulos coocorrentes; não eficácia causal nem ASR destas templates"
+                if f in _SR_V2 else "agrupamento operacional sem SR correspondente na Tabela 1"}
+    for f in FAMILIAS
 }
 
 # Famílias e técnicas DOCUMENTAIS: existem na literatura e no plano de testes, mas não
@@ -280,15 +302,19 @@ TECNICAS_DOCUMENTAIS = [
                   "de recusa nas cabeças de atenção.",
      "defesa_id": "D1", "refs": ["zou2023", "jia2024igcg", "gu2025smgcg"], "nota_asr": "GCG 54% Llama-2-7B-Chat; I-GCG 100% em ~400 passos."},
     {"id": "M906", "familia": "modelo", "nome": "Sampling em massa (Best-of-N)",
-     "mecanismo": "Milhares de variações estocásticas benignas submetidas em paralelo; lei de potência "
-                  "ASR(N)=1−(1−p)^N torna o custo do atacante o único limitador.",
+     "mecanismo": "Amostragem de variações com grande orçamento; sob hipóteses iid/probabilidade fixa, "
+                  "P(algum sucesso)=1−(1−p)^N; isso não é uma lei universal nem descreve correlação/adaptação.",
      "defesa_id": "D3", "refs": ["hughes2024bon"], "nota_asr": "89% GPT-4o / 78% Claude 3.5 Sonnet com N=10.000."},
 ]
 
+for _documental in TECNICAS_DOCUMENTAIS:
+    _documental["nota_asr_status"] = "historico-nao-revalidado"
+    _documental["aviso"] = "Não executado por esta skill; números exigem protocolo/versionamento próprios."
+
 DEFESAS = {
-    "D1": "Camada de entrada: normalização NFKC + strip de invisíveis/tags U+E0000–U+E007F, decodificação multi-vista, classificador de jailbreak/IPI (Prompt Guard 2) e perplexidade",
-    "D2": "Camada de prompt: sistema endurecido com hierarquia de instruções, Spotlighting com datamarking dinâmico, anti-mimetismo, anti-H-CoT, anti-Bad-Likert e protocolo de resposta",
-    "D3": "Camada de runtime: métricas de sessão (refusals≥3 e cos>0,85; turnos falsos≥10; input_tokens>p99), orçamento de violações, auditoria de CoT e honeypots",
+    "D1": "Entrada: preservar original + vistas NFKC/Unicode/decodificação limitada; classificador de injeção calibrado; perplexidade é sensor opcional, não fronteira",
+    "D2": "Prompt: respeitar canais reais, separar instrução/dado, Spotlighting externo, anti-mimetismo/H-CoT/Bad-Likert preservando tarefas benignas; lint não certifica segurança",
+    "D3": "Runtime: estado de sessão/tenant e orçamento calibrados; auditar ações, argumentos e evidência observável disponível, não CoT privado; limiares do estudo são hipóteses",
     "D4": "Camada de saída: três alarmes (entrada-limpa/saída-suja, codificação/língua inesperada, canário), DLP/PII, sanitização de markdown/imagem e deteção de prompt leaking",
     "D5": "Arquitetura: CaMeL/Dual LLM (capacidades + fluxo de dados), menor privilégio, assinatura de task_summary e MCP, políticas determinísticas, HITL e proveniência de pesos",
 }
@@ -301,6 +327,7 @@ def estrategia(eid, familia, nome, mecanismo, build, defesa, sinais, refs, nota_
         "id": eid, "familia": familia, "nome": nome, "mecanismo": mecanismo,
         "build": build, "defesa_id": defesa, "defesa": DEFESAS[defesa],
         "sinais_deteccao": sinais, "refs": ref(refs), "nota_asr": nota_asr,
+        "nota_asr_status": "historico-nao-revalidado" if nota_asr else "nao-reportado",
     })
 
 
@@ -999,6 +1026,7 @@ def gerar_variante(e, objetivo, seed=0):
     saida["sinais_deteccao"] = e["sinais_deteccao"]
     saida["refs"] = e["refs"]
     saida["nota_asr"] = e["nota_asr"]
+    saida["nota_asr_status"] = e["nota_asr_status"]
     saida["asr_familia"] = ASR_FAMILIA.get(e["familia"], {})
     if e["id"] == "T101":  # substitui o marcador do alter-ego
         if "prompt" in saida:

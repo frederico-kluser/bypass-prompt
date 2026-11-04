@@ -73,6 +73,11 @@ Fontes em `ingest.json` (é teu: o instalador nunca o reescreve):
 
 - `readme` — `README.md` → markdown · semantic · origem `agent` · tags `docs,readme`
 - `raiz` — `CHANGELOG.md`, `CONTRIBUTING.md`, `SKILL.md` → markdown · semantic · origem `agent` · tags `docs,{stem}`
+- `estudo-interno` — `pesquisas/2026-11-04-estudo-tecnico-guardrails-anatomia-bypass-defesa.md` → markdown · semantic · origem `untrusted` · tags `pesquisa,estudo-fornecido,errata,{stem}`
+- `avaliacao-documental-jev` — `references/avaliacao-prompt-builder-jev.md` → markdown · procedural · origem `agent` · tags `docs,avaliacao,prompt-builder,jev,somente-markdown,nao-executar`
+- `evidencias-externas` — `references/evidencias.json` → text · semantic · origem `untrusted` · tags `evidencias,errata,metricas,contexto`
+- `referencias` — `references/*.md` → markdown · semantic · origem `untrusted` · tags `docs,references,sintese-com-evidencia-externa,{stem}`
+- `pesquisas` — `pesquisas/*.md` → markdown · semantic · origem `untrusted` · tags `pesquisa,dossie,historico,{stem}`
 - chaves de supersessão: `proj/<ficheiro>#<segmento>` (estáveis → re-ingestão idempotente)
 - `código` — automático: todos os ficheiros de código do repositório (respeita o .gitignore) → um cartão por ficheiro + símbolos com linha
 
@@ -87,4 +92,5 @@ Fontes em `ingest.json` (é teu: o instalador nunca o reescreve):
 
 ## Referências locais
 
+- `references/acervo.md` — mapa do material ingerido: fontes, tags, chaves e consultas-tipo
 - `references/schema.md` — esquema, índice BM25F, catálogo de código, ingestão e regras de origem (gerido pelo instalador)
