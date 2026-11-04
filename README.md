@@ -13,7 +13,7 @@ A defensive-security agent skill for **authorized** LLM and agent assessments. I
 - A [reviewed evidence registry](<references/evidencias.json>) with source versions, denominators, corrections and explicit unknowns.
 - Project-local [CoALA discovery](<.agents/bypass-prompt-coala-agent-skill/SKILL.md>) for progressive retrieval rather than dumping the whole study into context.
 
-> **Final evaluation is documentation-only.** At the owner's request, the final testing stage is exclusively the [Markdown guide for /prompt-builder with JEV](<references/avaliacao-prompt-builder-jev.md>). Do not automatically run tests, selftests, benchmarks, dry-runs or evaluation API calls. A future execution requires a new explicit request. No new test suites or CI stages are part of this delivery.
+> **No automatic evaluation.** The [previous final guide](<references/avaliacao-prompt-builder-jev.md>) records a documentation-only delivery. A subsequent explicit implementation/testing request adds an isolated [defensive GLM + prompt-builder + JEV laboratory](<references/laboratorio-defensivo-glm-jev.md>). Reading or installing the skill still does not authorize tests, API spending or automatic deployment. The laboratory does not implement jailbreak conversion, detector evasion or refusal rerouting; CI is unchanged.
 
 ## Intended use
 
@@ -73,9 +73,9 @@ Result schema is now **version 2**. `asr_forte` is a deprecated alias for artifi
 
 The old [sample report](<assets/exemplo-relatorio.md>) and [sample variants](<assets/exemplo-variantes.json>) are preserved historical illustrations, **not current schema-2 output, measured evidence or inputs for the requested JEV stage**. Their old percentages and “echo = strong bypass” interpretation must not be reused.
 
-## Final evaluation: one Markdown, JEV only
+## Previous documentation-only protocol: JEV only
 
-Use the [requested final guide](<references/avaliacao-prompt-builder-jev.md>) when planning a future evaluation. It specifies:
+Use the [historical final guide](<references/avaliacao-prompt-builder-jev.md>) when planning a human-labeled evaluation. It specifies:
 
 - `/prompt-builder` as the skill and `prompt-builder` as its CLI.
 - **JEV as the only automated judge**, using imported, human-labeled observations and a pinned decision model.
@@ -84,6 +84,35 @@ Use the [requested final guide](<references/avaliacao-prompt-builder-jev.md>) wh
 - Budget, authorization, uncertainty, abstention and an explicitly **not executed** status.
 
 The distinction matters: arena `--judge-engine jev` can escalate to an LLM panel. The strict JEV-only route in the guide uses decision-mode evaluation without `models.llm`; it does not pretend that Jev generates agent replies or executes the target.
+
+## Tests and benchmarks: one dedicated skill
+
+All tests and recorded benchmarks now live in the [evaluation skill](<.agents/skills/bypass-prompt-evals-agent-skill/SKILL.md>). It bundles four behavioural offline suites, a benchmark-integrity suite, the benchmark tools, the 60-case risk corpus and a hash-verified registry of the measurements already taken.
+
+```bash
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/run_checks.py
+```
+
+That single command runs the Python suites, the Node adapter suite, the legacy offline selftest and the hardening-template checks, then recomputes every benchmark hash. It makes no model call, reads no credential and opens no network connection.
+
+The [opt-in laboratory guide](<references/laboratorio-defensivo-glm-jev.md>) still describes the paid protocol; its commands now point at the skill. The recorded run kept the original prompt: the proposal showed **0 percentage points** of gain across 20 decisive pairs of 24, with no independent human gold. Those numbers are historical evidence, not a current measurement or authorization to spend.
+
+## Risk-policy request corpus: classification only
+
+The [risk and refusal guide](<references/casos-risco-e-recusa.md>) documents [60 high-level request cases](<.agents/skills/bypass-prompt-evals-agent-skill/assets/casos-politica-risco-v1.json>) across ten domains: pentest authorization, weapons, coercive manipulation, fraud, privacy, violence, dangerous materials, self-harm, public integrity and health/consent. It includes 27 refusal references, 19 legitimate controls, nine clarification cases and five crisis-support cases.
+
+These are **agent-curated policy references, not human gold**. Inputs express harmful intent without supplying operational instructions. The [local exporter](<.agents/skills/bypass-prompt-evals-agent-skill/scripts/policy_cases.py>) keeps references outside the JEV state and emits an annotation-only decision config with `expected: {}`. It never sends this corpus to the GLM collector or rewriter; the previous 24-case pilot remains frozen.
+
+```bash
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --list
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --list --category pentest --category armas --action refuse
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --out-dir results/my-policy-cases --budget 0.10
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --verify results/my-policy-cases
+```
+
+All four commands are local and make no model calls. Exporting a budget is not spending authorization. Request classification is a different task from testing an assistant's responses; no new efficacy measurement is implied.
+
+Python remains stdlib-only. The optional adapter additionally needs Node 20.11+ and an already-built local prompt-builder installation; it records hashes because its imports are internal, not a stable public API. The new tests live in the skill and add no CI stage.
 
 ## Architecture and references
 

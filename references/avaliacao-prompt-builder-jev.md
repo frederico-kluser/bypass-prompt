@@ -1,6 +1,8 @@
 # Etapa final de avaliação — roteiro com /prompt-builder e JEV
 
-> **Estado: SOMENTE DOCUMENTAÇÃO. NÃO EXECUTADO.**
+> **Registro histórico da entrega anterior: SOMENTE DOCUMENTAÇÃO. NÃO EXECUTADO naquela solicitação.**
+>
+> Um pedido explícito posterior de implementação/testes motivou o [laboratório defensivo GLM + prompt-builder + JEV](<laboratorio-defensivo-glm-jev.md>). Esse caminho é separado, opt-in e não implementa conversão de jailbreaks. Os estados e proibições de execução abaixo descrevem a entrega documental anterior; não são resultados do laboratório nem autorização permanente de gasto.
 >
 > Por instrução do usuário, a etapa final é **apenas este Markdown**. Nenhum comando deste roteiro deve ser executado automaticamente: nem testes locais, nem selftest, benchmark, validação de configuração, pré-voo/dry-run, estimativa ou chamada de API. A existência deste documento não autoriza uma execução futura.
 >
