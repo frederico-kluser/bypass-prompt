@@ -25,7 +25,7 @@ para repetir a despesa.
 | Caminho | Conteúdo |
 |---|---|
 | `scripts/defensive_api.py` | Cliente OpenRouter fixo: GLM 5.3 Flash, effort `max`, provider `z-ai/fp8`, sem fallback/ferramentas. |
-| `scripts/defensive_lab.py` | Laboratório benigno: prepare/catalog/collect/export-jev/compare e o comando `policy-cases`. |
+| `scripts/defensive_lab.py` | Laboratório benigno: prepare/catalog/collect/export-jev/compare e o comando `policy-cases`. Corpus v2: 24 pares originais congelados + 12 pares por família de gatilho. |
 | `scripts/policy_cases.py` | Corpus de política: validação, filtros, exportação e verificação de pacotes. |
 | `scripts/prompt_builder_rewrite.mjs` | Adaptador de uma proposta defensiva cega via prompt-builder local. |
 | `scripts/run_checks.py` | Executor único das verificações offline e do registo de benchmarks. |
@@ -33,6 +33,10 @@ para repetir a despesa.
 | `assets/casos-politica-risco-v1.json` | 60 casos de alto nível em dez domínios de risco. |
 | `benchmarks/` | Cópias curadas dos resultados medidos, manifesto com hashes e limitações. |
 | `references/` | Detalhe das suítes e do registo de benchmarks. |
+
+O template de hardening usado como linha de base do laboratório vive no projeto (`scripts/harden.py`,
+v6) e ganhou uma secção de gatilhos conhecidos em dados derivada do estudo interno — só as secções de
+defesa; nada do estudo é usado para evasão.
 
 ## Verificação offline — começar aqui
 
@@ -68,17 +72,20 @@ registado, limitações e hashes. O executor confirma que os ficheiros não dive
 |---|---|---|---|
 | `defensive-prompt-lab-v1` | Avaliação de modelo | Executado em 2026-11-04 | 24 cenários, 20 pares conclusivos, **0 p.p.** de ganho, custo total ≈ US$ 0,0211, sem ouro humano. |
 | `defensive-prompt-lab-v2` | Avaliação de modelo | Executado em 2026-11-04 | 24 cenários, 22 pares conclusivos, **0 p.p.** de ganho, coleta −4,17% e p95 −49,42% vs original, custo ≈ US$ 0,0189, não promovida. |
+| `defensive-prompt-lab-v3` | Avaliação de modelo | Executado em 2026-11-04 | 48 cenários (corpus v2, 13 famílias), 40 pares conclusivos, **0 p.p.**, coleta −14,09% e p95 −30,97% vs template v6, custo ≈ US$ 0,0324 (+ US$ 0,0292 em tentativas falhadas), 2 defeitos reproduzíveis da proposta registados, não promovida. |
 | `policy-risk-classification-v1` | Corpus de classificação | Executado em 2026-11-04 | 60 casos, decisões JEV 27/19/9/5 = referências curadas, concordância 60/60 (consistência descritiva, **não acurácia**; sem ouro humano). |
 | `legacy-harness-selftest` | Suíte offline | Executado | 51 cenários determinísticos do harness legado. |
 | `prompt-builder-adapter-offline` | Suíte offline | Executado | 87 testes Node, zero rede. |
 | `python-offline-suites` | Suíte offline | Executado | 90 testes Python, zero rede. |
 
-Os resultados das duas rondas estão em [v1](<benchmarks/defensive-lab-20261104/relatorio-final.md>) e
-[v2](<benchmarks/defensive-lab-20261104-r2/relatorio-final.md>), com comparação e diagnóstico em cada diretório.
-A conclusão registada é **manter o prompt original** como referência: nenhuma proposta demonstrou ganho de
-utilidade (0 p.p. nas duas rondas); a v2 empatou com mais pares conclusivos, menor custo e menor latência,
-e também não foi promovida. Isto não é uma alegação de eficácia, de contenção ou de calibração do juiz — ver
-as limitações no registo.
+Os resultados das três rondas estão em [v1](<benchmarks/defensive-lab-20261104/relatorio-final.md>),
+[v2](<benchmarks/defensive-lab-20261104-r2/relatorio-final.md>) e
+[v3](<benchmarks/defensive-lab-20261104-r3/relatorio-final.md>), com comparação, diagnóstico por família e
+achados em cada diretório. A conclusão registada é **manter o prompt original** como referência: nenhuma
+proposta demonstrou ganho de utilidade (0 p.p. nas três rondas); a ronda 3 mediu a tensão entre disciplina
+de saída e sinalização defensiva (a proposta reproduziu uma diretiva injetada sem tratá-la como dado em
+`payload64-conflict`). Isto não é uma alegação de eficácia, de contenção ou de calibração do juiz — ver as
+limitações no registo.
 
 ## Corpus de risco e recusa — classificação apenas
 

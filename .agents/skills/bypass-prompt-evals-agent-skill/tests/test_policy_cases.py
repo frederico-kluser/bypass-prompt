@@ -202,8 +202,11 @@ class PacketTests(unittest.TestCase):
         self.assertEqual(error.exception.code, "lab.scope")
 
     def test_old_benign_corpus_still_frozen(self):
-        self.assertEqual(len(lab.synthetic_cases()), 24)
-        self.assertEqual(api.digest(lab.synthetic_cases()), "f7f567e6cec12c82fdefe601ff301f032464e6d06bdcc37a1138c8528cec0542")
+        # Corpus v2 grows, but the historical v1 slice (first 24 cases) stays
+        # byte-identical so registered manifests remain interpretable.
+        cases = lab.synthetic_cases()
+        self.assertEqual(len(cases), 48)
+        self.assertEqual(api.digest(cases[:24]), "f7f567e6cec12c82fdefe601ff301f032464e6d06bdcc37a1138c8528cec0542")
 
     def test_review_document_escapes_markdown_commands_and_images(self):
         cases = copy.deepcopy(self.cases[:1])

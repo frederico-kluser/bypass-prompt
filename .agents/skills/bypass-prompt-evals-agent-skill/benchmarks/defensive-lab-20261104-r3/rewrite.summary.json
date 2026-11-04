@@ -1,0 +1,149 @@
+{
+  "status": "finished",
+  "operationSha256": "cee927c2ba6f4ea1c5c3c385aba23ca1c0447754c9cf9d13490b507bd5d5d697",
+  "originalSha256": "2388adcd4e2418a33301c44ea27b1918604ebdc4343e72be443cbe3270c326ce",
+  "revisedSha256": "33d00ce4bb870d8b93f9db85b949d253a6272ded5e968902a56db0399dc71ba4",
+  "techniqueId": "specificity",
+  "humanReviewRequired": true,
+  "suppressedWarnings": 1,
+  "accounting": {
+    "snapshot": {
+      "budgetUsd": 0.1,
+      "spentUsd": 0.0065989199999999994,
+      "committedUsd": 0.0065989199999999994,
+      "pendingUsd": 0,
+      "pendingCalls": 0,
+      "conservativeUsd": 0,
+      "conservativeCalls": 0,
+      "remainingUsd": 0.09340108000000001,
+      "byokCalls": 0,
+      "byokUpstreamUsd": 0,
+      "byokUpstreamUnknownCalls": 0,
+      "byRole": {
+        "datagen": {
+          "calls": 0,
+          "usd": 0,
+          "tokensIn": 0,
+          "tokensOut": 0
+        },
+        "gabarito": {
+          "calls": 0,
+          "usd": 0,
+          "tokensIn": 0,
+          "tokensOut": 0
+        },
+        "competitor": {
+          "calls": 0,
+          "usd": 0,
+          "tokensIn": 0,
+          "tokensOut": 0
+        },
+        "judge": {
+          "calls": 0,
+          "usd": 0,
+          "tokensIn": 0,
+          "tokensOut": 0
+        },
+        "duel": {
+          "calls": 0,
+          "usd": 0,
+          "tokensIn": 0,
+          "tokensOut": 0
+        },
+        "rewriter": {
+          "calls": 2,
+          "usd": 0.0065989199999999994,
+          "tokensIn": 10020,
+          "tokensOut": 12588,
+          "cachedTokensIn": 9984,
+          "reasoningTokens": 10010,
+          "latencyTotalMs": 136423,
+          "estimatedUsd": 0.00969635,
+          "providers": {
+            "Z.AI": 2
+          },
+          "auditableCalls": 2
+        },
+        "agent": {
+          "calls": 0,
+          "usd": 0,
+          "tokensIn": 0,
+          "tokensOut": 0
+        }
+      },
+      "accuracy": {
+        "exact": 2,
+        "estimated": 0,
+        "unknown": 0
+      },
+      "finishByRole": {
+        "rewriter": {
+          "calls": 2,
+          "truncated": 1,
+          "finishReasons": {
+            "length": 1,
+            "stop": 1
+          },
+          "nativeFinishReasons": {
+            "length": 1,
+            "stop": 1
+          },
+          "signals": {
+            "finish_length": 1,
+            "native_length": 1,
+            "reasoning_at_cap": 1,
+            "empty_with_tokens": 1
+          },
+          "byEffort": {
+            "max": {
+              "calls": 2,
+              "truncated": 1
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "spentUsd": 0.0065989199999999994,
+      "committedUsd": 0.0065989199999999994,
+      "pendingUsd": 0,
+      "pendingCalls": 0,
+      "conservativeUsd": 0,
+      "conservativeCalls": 0
+    },
+    "calls": [
+      {
+        "role": "rewriter",
+        "modelId": "z-ai/glm-5.3-flash",
+        "generationId": "gen-1793824997-sBU10yMZdJmbjtwuAjOK",
+        "generationIdValid": true,
+        "usd": 0.00424894,
+        "source": "usage",
+        "status": "measured",
+        "provider": "Z.AI",
+        "latencyMs": 94719,
+        "auditable": true
+      },
+      {
+        "role": "rewriter",
+        "modelId": "z-ai/glm-5.3-flash",
+        "generationId": "gen-1793825092-Duvtr8lsIQJUvaV64hKP",
+        "generationIdValid": true,
+        "usd": 0.00234998,
+        "source": "usage",
+        "status": "measured",
+        "provider": "Z.AI",
+        "latencyMs": 41704,
+        "auditable": true
+      }
+    ]
+  },
+  "promptBuilderVersion": "0.1.1",
+  "moduleHashes": {
+    "dist/variator.js": "eb5ccab4bda14dd58699f5ec491ebe968b43b20f0dc28c26f80253e9296ff313",
+    "dist/openrouter.js": "def29d4637ad66349402c3cd1243626b540a75f6e60a6bdef2ae10cd50f303c6",
+    "dist/budget.js": "c5bf9e72ceba52604981691c432d28a50f0822a738af431b22e449c9bd5d3b77",
+    "dist/cli/spendGuards.js": "e811ae9d3bbc0a4146ca40beddcfb9c2a68c0c62ebac6773113121e281ccdde5",
+    "dist/engine/contracts.js": "838a8496311578ae15f50073b5ee885b151e578707c534210cea2f6e796a1f67"
+  }
+}
