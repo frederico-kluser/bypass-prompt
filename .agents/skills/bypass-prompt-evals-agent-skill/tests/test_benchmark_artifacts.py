@@ -25,7 +25,7 @@ class BenchmarkRegistryTests(unittest.TestCase):
     def test_registry_is_valid_and_names_the_benchmarks(self):
         self.assertEqual(self.registry["format"], "bypass-prompt-benchmarks@1")
         ids = {benchmark["id"] for benchmark in self.registry["benchmarks"]}
-        self.assertEqual(ids, {"defensive-prompt-lab-v1", "defensive-prompt-lab-v2",
+        self.assertEqual(ids, {"defensive-prompt-lab-v1", "defensive-prompt-lab-v2", "defensive-prompt-lab-v3",
                                "policy-risk-classification-v1",
                                "legacy-harness-selftest", "prompt-builder-adapter-offline",
                                "python-offline-suites"})
@@ -120,6 +120,58 @@ class RecordedBenchmarkTests(unittest.TestCase):
         self.assertEqual(record["status"], "finished")
         self.assertEqual(record["incompleteCaseIds"], [])
         self.assertEqual(len(record["cells"]), 48)
+        self.assertTrue(all(cell["status"] == "ok" for cell in record["cells"]))
+        self.assertEqual(len(record["contestants"]), 1)
+        self.assertEqual(record["contestants"][0]["kind"], "decision")
+        self.assertEqual(record["contestants"][0]["modelId"], "typesafe/jev-1.13")
+
+    def test_defensive_lab_round3_is_preserved_with_its_limits(self):
+        comparison = load(BENCH / "defensive-lab-20261104-r3" / "comparison.json")
+        self.assertFalse(comparison["human_gold"])
+        self.assertEqual(comparison["judge"], "typesafe/jev-1.13")
+        self.assertEqual(comparison["judge_run"]["snapshots"], ["typesafe/jev-1.13-20260917"])
+        benign = comparison["slices"]["benign"]
+        conflict = comparison["slices"]["document-conflict"]
+        self.assertEqual(benign["planned_pairs"] + conflict["planned_pairs"], 48)
+        self.assertEqual(benign["decisive_pairs"] + conflict["decisive_pairs"], 40)
+        for slice_name in ("benign", "document-conflict"):
+            self.assertEqual(comparison["slices"][slice_name]["utility_delta_pp"], 0.0)
+            self.assertEqual(comparison["slices"][slice_name]["improved_pairs"], 0)
+            self.assertEqual(comparison["slices"][slice_name]["regressed_pairs"], 0)
+        self.assertIn("sem ouro humano independente", " ".join(comparison["limitations"]))
+        self.assertEqual(comparison["collection"]["original"]["complete_responses"], 48)
+        self.assertEqual(comparison["collection"]["revised"]["complete_responses"], 48)
+
+    def test_defensive_lab_round3_report_costs_and_findings_are_consistent(self):
+        diagnostics = load(BENCH / "defensive-lab-20261104-r3" / "diagnostics.json")
+        self.assertEqual(diagnostics["cost_usd"]["total"], "0.032438222")
+        self.assertEqual(set(diagnostics["inconclusive_pairs"]),
+                         {"base64-benign", "hcot-benign", "hcot-conflict", "local-conflict",
+                          "payload64-conflict", "persona-benign", "persona-conflict", "politica-conflict"})
+        self.assertEqual(diagnostics["inconclusive_pairs"]["payload64-conflict"]["revised"]["external_directive_p_yes"], 0.72)
+        families = diagnostics["conflict_families"]
+        self.assertEqual(sum(f["pairs"] for f in families.values()), 24)
+        self.assertEqual(sum(f["conclusive"] for f in families.values()), 19)
+        corpus = load(BENCH / "defensive-lab-20261104-r3" / "cases.json")
+        self.assertEqual(len(corpus), 48)
+        # v1 cases keep their byte-identical shape (no family field).
+        conflict_families = {c.get("family", "direct-instruction") for c in corpus if c["slice"] == "document-conflict"}
+        self.assertEqual(len(conflict_families), 13)
+        report = (BENCH / "defensive-lab-20261104-r3" / "relatorio-final.md").read_text(encoding="utf-8")
+        self.assertIn("não foi promovida", report)
+        self.assertIn("40 / 48", report)
+        self.assertIn("tensão entre disciplina de saída e sinalização defensiva", report)
+        rewrite = load(BENCH / "defensive-lab-20261104-r3" / "rewrite.summary.json")
+        self.assertEqual(rewrite["status"], "finished")
+        self.assertEqual(rewrite["techniqueId"], "specificity")
+
+    def test_defensive_lab_round3_jev_record_is_decision_only(self):
+        record = load(BENCH / "defensive-lab-20261104-r3" / "jev-run.json")
+        self.assertEqual(record["format"], "jev-run@1")
+        self.assertEqual(record["mode"], "eval")
+        self.assertEqual(record["status"], "finished")
+        self.assertEqual(record["incompleteCaseIds"], [])
+        self.assertEqual(len(record["cells"]), 96)
         self.assertTrue(all(cell["status"] == "ok" for cell in record["cells"]))
         self.assertEqual(len(record["contestants"]), 1)
         self.assertEqual(record["contestants"][0]["kind"], "decision")

@@ -10,6 +10,7 @@ está fora do Git; **estas cópias são a evidência versionada** e não devem s
 |---|---|---|
 | `defensive-lab-20261104/` | Executado | Prompt original/revisado, 48 observações, registo JEV integral, custos, comparação e relatório. |
 | `defensive-lab-20261104-r2/` | Executado | Segunda proposta cega (disciplina de saída): 48 observações, registo JEV, comparação, diagnóstico e relatório. |
+| `defensive-lab-20261104-r3/` | Executado | Terceira proposta cega sobre o template v6 e o corpus v2 (48 casos, 13 famílias de gatilho): 96 observações, registo JEV, comparação, diagnóstico por família, custos de tentativas falhadas e relatório. |
 | `policy-risk-20261104/` | Executado (JEV-only) | 60 casos, referências curadas, revisão, configuração JEV-only e registo da classificação. |
 | `registry.json` | Índice | Tipos, estados, custos, limitações e SHA-256 de cada artefacto. |
 

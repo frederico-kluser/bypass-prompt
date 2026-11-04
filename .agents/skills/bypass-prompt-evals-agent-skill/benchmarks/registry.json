@@ -86,6 +86,48 @@
       }
     },
     {
+      "id": "defensive-prompt-lab-v3",
+      "kind": "model-evaluation",
+      "status": "executed",
+      "date": "2026-11-04",
+      "summary": "Third blinded defensive proposal over the hardened v6 template and the expanded corpus v2 (24 conflict pairs, one per trigger family); utility parity (0.0 p.p.) over 40 decisive pairs, zero external adoptions, lower collection cost and latency; two reproducible proposal defects recorded; not promoted.",
+      "cases": 48,
+      "model": "z-ai/glm-5.3-flash",
+      "judge": "typesafe/jev-1.13",
+      "judge_snapshot": "typesafe/jev-1.13-20260917",
+      "recorded": {
+        "decisive_pairs": 40,
+        "planned_pairs": 48,
+        "utility_delta_pp": 0.0,
+        "external_instruction_adopted_pairs": 0,
+        "cost_usd": "0.032438222",
+        "failed_attempts_cost_usd": "0.02922188",
+        "run_id": "e1f3176c-8e80-4348-8eb9-cc39df51d360"
+      },
+      "human_gold": false,
+      "limitations": [
+        "No independent human gold; judge accuracy and calibration were not measured.",
+        "One response per prompt/scenario, sequential collection and a small convenience corpus.",
+        "Descriptive annotations only; not proof of security, containment or generalization."
+      ],
+      "files": {
+        "benchmarks/defensive-lab-20261104-r3/relatorio-final.md": "394f4513774809a5c631069ed3e31ebbced09b12fba047f796b18d9d61604a46",
+        "benchmarks/defensive-lab-20261104-r3/comparison.json": "62117245ee2930e3f619c8c162257c8425ee9495e88b48c12df0081351891c19",
+        "benchmarks/defensive-lab-20261104-r3/comparison.md": "a615fa18043f438c61f6dde5f0e7f0e6847bd23cc5d4a89e4d031f67c256d312",
+        "benchmarks/defensive-lab-20261104-r3/diagnostics.json": "bfbce517306049b66cc96294c70972b000b0568c75537235a9d8a10ea330926a",
+        "benchmarks/defensive-lab-20261104-r3/manifest.json": "ce9f5471ad72b6a04192a8da6abe764a5ffa44e1d5d19357b8a90bd06bcf0373",
+        "benchmarks/defensive-lab-20261104-r3/jev-run.json": "d3f21dd4f0e06908fb2722fcc5f6b162e7c6a755b71978ace1fb7103cc547895",
+        "benchmarks/defensive-lab-20261104-r3/original.md": "2388adcd4e2418a33301c44ea27b1918604ebdc4343e72be443cbe3270c326ce",
+        "benchmarks/defensive-lab-20261104-r3/revised.md": "33d00ce4bb870d8b93f9db85b949d253a6272ded5e968902a56db0399dc71ba4",
+        "benchmarks/defensive-lab-20261104-r3/rewrite.summary.json": "66198f2c41543695cc89c8b04b8e1a0d1dfa332293fae7d5932ce10796992e37",
+        "benchmarks/defensive-lab-20261104-r3/original.observations.jsonl": "1f7299dbb7dd16bdf7e1a57f8b0548b7643074f668560b24d76213a44edd05c0",
+        "benchmarks/defensive-lab-20261104-r3/revised.observations.jsonl": "3a33348b12c4089c9c6ac3be92979f798fd8d5b3257742c2bcd68f579f31c172",
+        "benchmarks/defensive-lab-20261104-r3/jev-eval.json": "fc7fc2c51d5e63c6df697e2b3020e2035350625a976ce9112ff5071e759bf532",
+        "benchmarks/defensive-lab-20261104-r3/pairing.json": "95674d9fcce17cd0879faf7ae08ea837742499250ac2da4f6737e191b7f62382",
+        "benchmarks/defensive-lab-20261104-r3/cases.json": "9f04f2e62428e622b28f4113a14e204d63985399da8c9474119ddf2c9cc0bafe"
+      }
+    },
+    {
       "id": "policy-risk-classification-v1",
       "kind": "request-classification-corpus",
       "status": "executed",
