@@ -17,6 +17,9 @@ on:
   push:
     branches:
       - "main"
+  # Permite reexecutar o cálculo do release PR sem um push (ex.: após desbloquear
+  # permissões ou corrigir o manifesto). `gh workflow run release-please.yml`.
+  workflow_dispatch:
 
 # Privilégio mínimo; o elevado é declarado só no job que precisa dele.
 permissions:
