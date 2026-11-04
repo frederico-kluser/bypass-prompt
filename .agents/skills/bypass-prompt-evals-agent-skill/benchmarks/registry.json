@@ -46,24 +46,74 @@
       }
     },
     {
+      "id": "defensive-prompt-lab-v2",
+      "kind": "model-evaluation",
+      "status": "executed",
+      "date": "2026-11-04",
+      "summary": "Second blinded defensive proposal with an output-discipline brief clause; utility parity (0.0 p.p.) over 22 decisive pairs, more decisive annotations, lower collection cost and latency than the original; not promoted.",
+      "cases": 24,
+      "model": "z-ai/glm-5.3-flash",
+      "judge": "typesafe/jev-1.13",
+      "judge_snapshot": "typesafe/jev-1.13-20260917",
+      "recorded": {
+        "decisive_pairs": 22,
+        "planned_pairs": 24,
+        "utility_delta_pp": 0.0,
+        "external_instruction_adopted_pairs": 0,
+        "cost_usd": "0.018898434",
+        "run_id": "597334ca-3883-4f00-9b3b-98e79e39b2b4"
+      },
+      "human_gold": false,
+      "limitations": [
+        "No independent human gold; judge accuracy and calibration were not measured.",
+        "One response per prompt/scenario, sequential collection and a small convenience corpus.",
+        "Descriptive annotations only; not proof of security, containment or generalization."
+      ],
+      "files": {
+        "benchmarks/defensive-lab-20261104-r2/relatorio-final.md": "ad51a1814038af8019708a4416bc5383b42168750f2e1b7c85cd4ce25e3a346c",
+        "benchmarks/defensive-lab-20261104-r2/comparison.json": "bb13ee1e2bc4834dd8e07f698fbe6aa823093f4ec56d66815cb7e2711e253ecd",
+        "benchmarks/defensive-lab-20261104-r2/comparison.md": "0d8e62940feeec22774b52df1615deeec4f1933397611e8d1b8a7bc112f1d9a4",
+        "benchmarks/defensive-lab-20261104-r2/diagnostics.json": "9efb7205dd00a2f375bf435319658cb59b8f84dea91b453a674d5f10a280f756",
+        "benchmarks/defensive-lab-20261104-r2/manifest.json": "77795c0a19bd1f6a01e243e796c72551e4f21c6e36447768d7ecfc9aa7215822",
+        "benchmarks/defensive-lab-20261104-r2/jev-run.json": "421ace4caef4d25b74a4bf0bdf2a25fea8efae1dc43713cc30e2cd039ca5fabb",
+        "benchmarks/defensive-lab-20261104-r2/original.md": "ee40b609e5f733dea1b0f2c71329b8ce6277d92ce1387987d2170464f31eb41b",
+        "benchmarks/defensive-lab-20261104-r2/revised.md": "ceb10e1c484a76d4446809919378816701408183b2dcc8dbbebc82ac717b6886",
+        "benchmarks/defensive-lab-20261104-r2/rewrite.summary.json": "43f633b94404747739f922b0c8f468a5a6c2f86595bc4205bda262193c32bc99",
+        "benchmarks/defensive-lab-20261104-r2/original.observations.jsonl": "430106c8451767434be5a540c3c7f31316426a64c2cc2deac3b5db33ea3ff542",
+        "benchmarks/defensive-lab-20261104-r2/revised.observations.jsonl": "bb1befdd5a886581fa63b19e0ff56b744da31fd13de117476f3ef27df8482c4e",
+        "benchmarks/defensive-lab-20261104-r2/jev-eval.json": "fb3a263145df98ea2bf4899a2ff938a5708646cd5d2a4841409560defcc237e9",
+        "benchmarks/defensive-lab-20261104-r2/pairing.json": "9ef6b36ba261f77123eaa073ce98f8594747486ddffcbf8f07fb66de08ae70e1"
+      }
+    },
+    {
       "id": "policy-risk-classification-v1",
       "kind": "request-classification-corpus",
-      "status": "exported-not-executed",
+      "status": "executed",
       "date": "2026-11-04",
-      "summary": "Sixty non-operational high-level request cases in ten risk domains, exported for JEV-only classification; no model run.",
+      "summary": "Sixty non-operational high-level request cases in ten risk domains, classified JEV-only with typesafe/jev-1.13; the frozen corpus never passed through collect or the rewriter.",
       "cases": 60,
       "judge": "typesafe/jev-1.13",
+      "judge_snapshot": "typesafe/jev-1.13-20260917",
       "recorded": {
         "refuse": 27,
         "answer": 19,
         "clarify": 9,
         "safety_support": 5,
-        "categories": 10
+        "categories": 10,
+        "jev_decisions_refuse": 27,
+        "jev_decisions_answer": 19,
+        "jev_decisions_clarify": 9,
+        "jev_decisions_safety_support": 5,
+        "agreement_with_agent_references": "60/60",
+        "agreement_explicit_harm_request": "60/60",
+        "cost_usd": "0.0019059600000000008",
+        "run_id": "219a7670-9896-4b46-a799-9a0585e91b5c"
       },
       "human_gold": false,
       "limitations": [
         "References were curated by the agent (origin ai, humanReviewed false), not by independent humans.",
         "The JEV config keeps expected empty, so no accuracy/calibration claim is made.",
+        "Agreement with agent-curated references is a descriptive consistency measure between AI-derived artifacts, not accuracy against human gold.",
         "Request classification is not an evaluation of an assistant response or of runtime containment."
       ],
       "files": {
@@ -71,7 +121,8 @@
         "benchmarks/policy-risk-20261104/references.json": "8909014802f2f13509a27cfba7e500beaef220fb19e346eea316354e0aebb5b3",
         "benchmarks/policy-risk-20261104/review.md": "9657eb3c2265705871dbcf7ecb12ec915f9129749f73e1737e3b8141472d9437",
         "benchmarks/policy-risk-20261104/manifest.json": "604b54c207bb71fef1f96e2c8c9576b874fef11fea0b6832e7cbfe26176e708f",
-        "benchmarks/policy-risk-20261104/jev-policy.json": "7656bd7f7db6f0e035d0b2516cad2aca82459a0d889df5625cb1211f017d48e0"
+        "benchmarks/policy-risk-20261104/jev-policy.json": "7656bd7f7db6f0e035d0b2516cad2aca82459a0d889df5625cb1211f017d48e0",
+        "benchmarks/policy-risk-20261104/jev-run.json": "63d2518483079c673291022ed8ee7c68826f85ae8e9d2ae8707c3d2f8fb85501"
       }
     },
     {

@@ -67,15 +67,18 @@ registado, limitações e hashes. O executor confirma que os ficheiros não dive
 | ID | Tipo | Estado | Registo principal |
 |---|---|---|---|
 | `defensive-prompt-lab-v1` | Avaliação de modelo | Executado em 2026-11-04 | 24 cenários, 20 pares conclusivos, **0 p.p.** de ganho, custo total ≈ US$ 0,0211, sem ouro humano. |
-| `policy-risk-classification-v1` | Corpus de classificação | Exportado, **não executado** | 60 casos, 27 recusas / 19 respostas / 9 esclarecimentos / 5 apoios em crise. |
+| `defensive-prompt-lab-v2` | Avaliação de modelo | Executado em 2026-11-04 | 24 cenários, 22 pares conclusivos, **0 p.p.** de ganho, coleta −4,17% e p95 −49,42% vs original, custo ≈ US$ 0,0189, não promovida. |
+| `policy-risk-classification-v1` | Corpus de classificação | Executado em 2026-11-04 | 60 casos, decisões JEV 27/19/9/5 = referências curadas, concordância 60/60 (consistência descritiva, **não acurácia**; sem ouro humano). |
 | `legacy-harness-selftest` | Suíte offline | Executado | 51 cenários determinísticos do harness legado. |
 | `prompt-builder-adapter-offline` | Suíte offline | Executado | 87 testes Node, zero rede. |
 | `python-offline-suites` | Suíte offline | Executado | 90 testes Python, zero rede. |
 
-O resultado do laboratório está em [relatório final](<benchmarks/defensive-lab-20261104/relatorio-final.md>),
-[comparação](<benchmarks/defensive-lab-20261104/comparison.json>) e [diagnóstico](<benchmarks/defensive-lab-20261104/diagnostics.json>).
-A conclusão registada é **manter o prompt original**: a proposta não demonstrou melhoria e não foi promovida.
-Isto não é uma alegação de eficácia, de contenção ou de calibração do juiz — ver as limitações no registo.
+Os resultados das duas rondas estão em [v1](<benchmarks/defensive-lab-20261104/relatorio-final.md>) e
+[v2](<benchmarks/defensive-lab-20261104-r2/relatorio-final.md>), com comparação e diagnóstico em cada diretório.
+A conclusão registada é **manter o prompt original** como referência: nenhuma proposta demonstrou ganho de
+utilidade (0 p.p. nas duas rondas); a v2 empatou com mais pares conclusivos, menor custo e menor latência,
+e também não foi promovida. Isto não é uma alegação de eficácia, de contenção ou de calibração do juiz — ver
+as limitações no registo.
 
 ## Corpus de risco e recusa — classificação apenas
 
