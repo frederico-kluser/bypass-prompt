@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "revisado_em": "2026-11-04",
+  "proveniencia": "untrusted",
+  "aviso": "Verificado significa conferido na fonte citada, não reproduzido neste projeto. Métricas não são garantias nem comparáveis sem protocolo. null significa não reportado/não verificado, nunca zero.",
+  "fontes": [
+    {"id": "GTG-v2", "titulo": "Guarding the Guardrails: A Taxonomy-Driven Approach to Jailbreak Detection", "url": "https://arxiv.org/html/2510.13893v2", "versao": "v2, 2026-02-04", "tipo": "artigo"},
+    {"id": "CCPP-v1", "titulo": "Constitutional Classifiers++", "url": "https://arxiv.org/html/2601.04603v1", "versao": "v1, 2026-01-08", "tipo": "artigo"},
+    {"id": "CCPP-blog", "titulo": "Next-generation Constitutional Classifiers", "url": "https://www.anthropic.com/research/next-generation-constitutional-classifiers", "versao": "página consultada em 2026-11-04", "tipo": "relato-fornecedor"},
+    {"id": "CAMEL-v2", "titulo": "Defeating Prompt Injections by Design", "url": "https://arxiv.org/html/2503.18813v2", "versao": "v2, 2025-06-24", "tipo": "artigo"},
+    {"id": "ARDITI-v3", "titulo": "Refusal in Language Models Is Mediated by a Single Direction", "url": "https://arxiv.org/abs/2406.11717v3", "versao": "v3, 2024-10-30", "tipo": "artigo"},
+    {"id": "SPOT-v1", "titulo": "Defending Against Indirect Prompt Injection Attacks With Spotlighting", "url": "https://arxiv.org/html/2403.14720v1", "versao": "v1, 2024", "tipo": "artigo"},
+    {"id": "STRONGREJECT-v2", "titulo": "A StrongREJECT for Empty Jailbreaks", "url": "https://arxiv.org/abs/2402.10260v2", "versao": "v2, 2024-08-27", "tipo": "artigo"},
+    {"id": "UNICODE15", "titulo": "Unicode Normalization Forms, UAX 15", "url": "https://www.unicode.org/reports/tr15/", "versao": "consultada em 2026-11-04", "tipo": "norma"},
+    {"id": "UNICODE39", "titulo": "Unicode Security Mechanisms, UTS 39", "url": "https://www.unicode.org/reports/tr39/", "versao": "consultada em 2026-11-04", "tipo": "norma"},
+    {"id": "RFC4648", "titulo": "The Base16, Base32, and Base64 Data Encodings", "url": "https://www.rfc-editor.org/rfc/rfc4648", "versao": "RFC 4648, seção 12", "tipo": "norma"},
+    {"id": "PG2", "titulo": "Llama Prompt Guard 2 Model Card", "url": "https://huggingface.co/meta-llama/Llama-Prompt-Guard-2-86M/blob/main/README.md", "versao": "model card consultado em 2026-11-04; revision não fixada", "tipo": "model-card"},
+    {"id": "NIST600", "titulo": "NIST AI 600-1, Generative AI Profile", "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence", "versao": "julho de 2024", "tipo": "norma"},
+    {"id": "NISTCORE", "titulo": "AI RMF Core", "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/", "versao": "AI RMF 1.0", "tipo": "norma"},
+    {"id": "ATLAS202610", "titulo": "MITRE ATLAS authoritative data", "url": "https://github.com/mitre-atlas/atlas-data/blob/main/dist/v6/ATLAS-2026.10.yaml", "versao": "conteúdo 2026.10, formato 6.1.0, 2026-10-28", "tipo": "catalogo"},
+    {"id": "ATLASCHANGE", "titulo": "MITRE ATLAS changelog", "url": "https://github.com/mitre-atlas/atlas-data/blob/main/CHANGELOG.md", "versao": "seção 2026.10", "tipo": "catalogo"},
+    {"id": "PROMPTFOO", "titulo": "Promptfoo is joining OpenAI", "url": "https://www.promptfoo.dev/blog/promptfoo-joining-openai/", "versao": "anúncio de acordo, 2026-03-09", "tipo": "anuncio"},
+    {"id": "FIPS186", "titulo": "Digital Signature Standard, FIPS 186-5", "url": "https://csrc.nist.gov/pubs/fips/186-5/final", "versao": "FIPS 186-5", "tipo": "norma"}
+  ],
+  "afirmacoes": [
+    {
+      "id": "E01", "tema": "taxonomia-sete-familias", "status": "corrigido",
+      "enunciado": "Giarrusso, Sorokoletova et al. definem sete famílias de mecanismo. As nove famílias do CLI são agrupamentos operacionais próprios; automatic attacks é eixo auxiliar ortogonal.",
+      "fontes": ["GTG-v2"], "localizador": "seção 3.2, Tabela 1, Apêndice C",
+      "contexto": "Minerva-7B-instruct-v1.0; 48 mestrandos em sessões de 2 horas; 1.364 ramos únicos, 185 sucessos; nove tarefas; principalmente italiano, parte inglês. Data exata da coleta não reportada.",
+      "limitacoes": ["Famílias coocorrem: SR por conversa não estima eficácia causal isolada.", "Percentagens antigas 14,3/17,1/7,8 etc. e coluna selected não correspondem à Tabela 1 do v2.", "Não extrapolar para modelos atuais ou para as templates deste projeto."],
+      "metricas": [
+        {"nome": "impersonation", "valor": 0.151, "unidade": "proporcao", "denominador": "696 conversas com rótulo; 105 sucessos"},
+        {"nome": "privilege_escalation", "valor": 0.110, "unidade": "proporcao", "denominador": "100 conversas; 11 sucessos"},
+        {"nome": "persuasion", "valor": 0.144, "unidade": "proporcao", "denominador": "250 conversas; 36 sucessos"},
+        {"nome": "cognitive_overload", "valor": 0.131, "unidade": "proporcao", "denominador": "289 conversas; 38 sucessos"},
+        {"nome": "encoding_obfuscation", "valor": 0.094, "unidade": "proporcao", "denominador": "139 conversas; 13 sucessos"},
+        {"nome": "goal_conflict", "valor": 0.119, "unidade": "proporcao", "denominador": "624 conversas; 74 sucessos"},
+        {"nome": "data_poisoning", "valor": 0.172, "unidade": "proporcao", "denominador": "198 conversas; 34 sucessos"},
+        {"nome": "sem_tecnica", "valor": 0.064, "unidade": "proporcao", "denominador": "110 conversas; 7 sucessos"},
+        {"nome": "selected_tasks", "valor": null, "unidade": "proporcao", "denominador": "coluna correspondente não reportada no v2"}
+      ]
+    },
+    {
+      "id": "E02", "tema": "deteccao-com-taxonomia", "status": "confirmado-contextual",
+      "enunciado": "No subconjunto de 91 diálogos com ataques bem-sucedidos, GPT-5 detecta 60 sem guia e 71 com guia taxonômico; não é acurácia global.",
+      "fontes": ["GTG-v2"], "localizador": "seções 5 e 5.1",
+      "contexto": "Ataques de infraestrutura excluídos; snapshot exato do GPT-5 e data da chamada não reportados.",
+      "limitacoes": ["13/91 recuperados bruto e 2/91 perdidos: ganho líquido de 11/91, aproximadamente 12,1 pontos percentuais.", "Sem corpus benigno: FPR não medida."],
+      "metricas": [
+        {"nome": "deteccao_sem_guia", "valor": 0.659, "unidade": "proporcao", "denominador": "60 de 91 diálogos selecionados"},
+        {"nome": "deteccao_com_guia", "valor": 0.780, "unidade": "proporcao", "denominador": "71 de 91 diálogos selecionados"}
+      ]
+    },
+    {
+      "id": "E03", "tema": "ccpp-vulnerabilidades", "status": "corrigido",
+      "enunciado": "CC++ reporta uma vulnerabilidade de alto risco em 198.000 tentativas de red team: aproximadamente 0,005 descobertas por mil consultas. Isso não é ASR universal por consulta.",
+      "fontes": ["CCPP-v1", "CCPP-blog"], "localizador": "paper seção 3; blog avaliação red-team",
+      "contexto": "Mais de 1.700 horas, escopo CBRN e rubrica específica do fornecedor; alto risco exige sucesso em mais de 5 de 8 questões.",
+      "limitacoes": ["Não encontrar jailbreak universal no protocolo não prova inexistência.", "Alegação de publicação ICLR 2026 e atribuição a Sharma não confirmadas nesta auditoria; citar o artigo versionado."],
+      "metricas": [{"nome": "descobertas_alto_risco_por_mil", "valor": 0.005, "unidade": "descobertas_por_1000_consultas", "denominador": "1 vulnerabilidade identificada / 198000 consultas de red team"}]
+    },
+    {
+      "id": "E04", "tema": "ccpp-custo-utilidade", "status": "confirmado-contextual",
+      "enunciado": "O custo aproximado de 1% é estimativa computacional no tráfego Opus 4.0; 0,05% refere-se a consultas benignas Sonnet 4.5 em um mês, não a bloqueio total.",
+      "fontes": ["CCPP-v1", "CCPP-blog"], "localizador": "abstract, introdução e avaliação de produção",
+      "contexto": "Cascata com probes internos: requer acesso às ativações, não disponível como prompt para qualquer API.",
+      "limitacoes": ["Compute overhead não é latência nem SLA.", "40x versus exchange classifier baseline; 8x versus cascata sem probes: comparadores diferentes.", "Paper descreve shadow deployment; não confundir flag e recusa efetiva sem conferir o protocolo."],
+      "metricas": [
+        {"nome": "overhead_compute_estimado", "valor": 0.01, "unidade": "proporcao", "denominador": "compute estimado no tráfego Opus 4.0"},
+        {"nome": "consultas_benignas_sinalizadas", "valor": 0.0005, "unidade": "proporcao", "denominador": "consultas benignas Sonnet 4.5 em um mês"}
+      ]
+    },
+    {
+      "id": "E05", "tema": "camel-garantias-condicionais", "status": "corrigido",
+      "enunciado": "CaMeL v2 reporta headline de 77% das tarefas AgentDojo versus 84% sem defesa. Contenção depende de políticas, rótulos, interpretador e mediação corretos; verificação formal do interpretador é trabalho futuro.",
+      "fontes": ["CAMEL-v2"], "localizador": "resumo; seções 3, 3.1, 9 e 10",
+      "contexto": "v2 de 2025-06-24; não misturar com headline 67% da v1. Snapshot único correspondente ao headline não confirmado nesta auditoria.",
+      "limitacoes": ["Pressupõe pedido do usuário e memória confiáveis.", "Não garante veracidade de resumos, ausência de phishing textual, nem todos os canais laterais.", "Não é correção formal irrestrita de todo agente."],
+      "metricas": [
+        {"nome": "utility_headline_com_defesa", "valor": 0.77, "unidade": "proporcao", "denominador": "tarefas AgentDojo no headline v2"},
+        {"nome": "utility_headline_sem_defesa", "valor": 0.84, "unidade": "proporcao", "denominador": "tarefas AgentDojo no headline v2"}
+      ]
+    },
+    {
+      "id": "E06", "tema": "direcao-recusa", "status": "confirmado-contextual",
+      "enunciado": "Arditi et al. identificam uma direção mediadora de recusa em 13 modelos conversacionais abertos até 72B.",
+      "fontes": ["ARDITI-v3"], "localizador": "abstract",
+      "contexto": "Intervenção em ativações/pesos, não efeito garantido de um prompt.",
+      "limitacoes": ["Não implica que toda segurança de qualquer modelo seja unidimensional.", "Recusa e segurança são variáveis distintas; benchmarks gerais não provam ausência de regressões."], "metricas": []
+    },
+    {
+      "id": "E07", "tema": "spotlighting", "status": "confirmado-contextual",
+      "enunciado": "Spotlighting auxilia separação probabilística de instruções e dados; transformações e marcadores devem ser aplicados por código externo.",
+      "fontes": ["SPOT-v1", "RFC4648"], "localizador": "Spotlighting seções de datamarking e limitações; RFC seção 12",
+      "contexto": "Resultados abaixo de 2% em experimentos específicos não transferem como SLA para qualquer agente.",
+      "limitacoes": ["Base64 é reversível e não oferece confidencialidade computacional.", "1/N^k descreve adivinhação idealizada de um marcador uniforme, não limita ASR e não autentica dados.", "Um modelo pode seguir uma instrução hostil sem adivinhar ou fechar delimitadores."], "metricas": []
+    },
+    {
+      "id": "E08", "tema": "unicode-multivista", "status": "corrigido",
+      "enunciado": "NFKC é normalização de compatibilidade seguida de composição canônica, não colapso universal de homóglifos latino/cirílico.",
+      "fontes": ["UNICODE15", "UNICODE39"], "localizador": "UAX15 seção 1.2; UTS39 seções 3.1.1 e 6.1",
+      "contexto": "Preservar original e vistas derivadas; confusable skeleton é análise adicional.",
+      "limitacoes": ["Remover joiners, controles bidi ou variation selectors indiscriminadamente pode corromper línguas, emoji e evidência.", "Limitar bytes, profundidade, expansão e tempo da decodificação; não executar conteúdo decodificado."], "metricas": []
+    },
+    {
+      "id": "E09", "tema": "prompt-guard-2", "status": "confirmado-contextual",
+      "enunciado": "Prompt Guard 2 detecta intenção explícita de sobrescrever instruções; não é classificador genérico de nocividade nem autorizador de ferramentas.",
+      "fontes": ["PG2"], "localizador": "Model Scope e Direct Jailbreak Detection Evaluation",
+      "contexto": "Recall em inglês a 1% FPR em benchmark privado; A100, 512 tokens; 22M tem desempenho multilíngue inferior ao 86M.",
+      "limitacoes": ["Latências não são end-to-end nem SLA de produção.", "Scores não devem ser chamados probabilidades calibradas sem validação local."],
+      "metricas": [
+        {"nome": "recall_22M", "valor": 0.887, "unidade": "proporcao", "denominador": "positivos do benchmark privado em inglês a 1% FPR"},
+        {"nome": "recall_86M", "valor": 0.975, "unidade": "proporcao", "denominador": "positivos do benchmark privado em inglês a 1% FPR"},
+        {"nome": "latencia_22M", "valor": 19.3, "unidade": "ms", "denominador": "classificação de 512 tokens em A100"},
+        {"nome": "latencia_86M", "valor": 92.4, "unidade": "ms", "denominador": "classificação de 512 tokens em A100"}
+      ]
+    },
+    {
+      "id": "E10", "tema": "higiene-metrica", "status": "confirmado-contextual",
+      "enunciado": "StrongREJECT mostra sobreavaliação em métodos anteriores e perda de capacidades sob alguns jailbreaks; recusa lexical não mede entrega de capacidade nociva.",
+      "fontes": ["STRONGREJECT-v2"], "localizador": "abstract e avaliação",
+      "contexto": "O harness local usa marcadores benignos, não reproduz avaliação de dano StrongREJECT.",
+      "limitacoes": ["Eco benigno esperado não é bypass.", "Repetir um plano fixo não implementa atacante adaptativo.", "Timeouts, 5xx e payloads inválidos são inconclusivos, nunca bloqueios."], "metricas": []
+    },
+    {
+      "id": "E11", "tema": "limiares-runtime", "status": "recomendacao-projeto",
+      "enunciado": "refusals>=3, cosine>0.85, turnos falsos>=10, janela 32/stride16, chunks512/overlap64 e tenant_p99 são pontos iniciais de calibração, não limiares universais validados.",
+      "fontes": [], "localizador": "pipeline proposto pelo estudo interno",
+      "contexto": "Calibrar por tenant, idioma, tokenizer, casos benignos e orçamento; iniciar em shadow.",
+      "limitacoes": ["Duas classificações correlacionadas não formam necessariamente duas defesas independentes.", "Um score crescente não prova intenção maliciosa; citações e sessões legítimas precisam continuar úteis."], "metricas": []
+    },
+    {
+      "id": "E12", "tema": "numeros-nao-auditados", "status": "nao-verificado",
+      "enunciado": "Os números <2% para guardrail de saída isolado, 13,9–27%, Dr House 85–95%, GPQA 74→32, latência 0ms, comparações comerciais heterogêneas e resultados FinBot/DonkeyRail não foram revalidados nesta auditoria.",
+      "fontes": [], "localizador": "estudo fornecido e dossiê histórico, preservados como dados",
+      "contexto": "Existência no estudo não equivale a confirmação primária nem reprodução.",
+      "limitacoes": ["Não usar como regra operacional, ranking universal ou promessa de eficácia.", "Números remanescentes em nota_asr de técnicas são históricos/não revalidados até evidência individual."], "metricas": []
+    },
+    {
+      "id": "E13", "tema": "nist-governanca", "status": "corrigido",
+      "enunciado": "NIST AI 600-1 é perfil voluntário. MEASURE 2.7 trata de segurança/resiliência; MEASURE 2.10 trata de privacidade. Alinhamento não certifica conformidade nem safe harbor.",
+      "fontes": ["NIST600", "NISTCORE"], "localizador": "publicação oficial e AI RMF Core Tabela 3",
+      "contexto": "Julho de 2024; os identificadores MS-2.5-006 e MG-4.1-002 exigem verificação direta do PDF antes de citação literal.",
+      "limitacoes": ["Texto exato dos dois IDs não confirmado nesta auditoria.", "Disposição legal Texas Sec.552.105(e) não auditada; consultar jurídico, sem promessa de proteção regulatória."], "metricas": []
+    },
+    {
+      "id": "E14", "tema": "atlas-versionado", "status": "corrigido",
+      "enunciado": "ATLAS 2026.10 move T0056 para AML.T0085.003 System Instructions e T0057 para AML.T0085.002 Conversation Context and Memory. Tool Poisoning é AML.T0110.",
+      "fontes": ["ATLAS202610", "ATLASCHANGE"], "localizador": "release 2026.10, 2026-10-28",
+      "contexto": "AML.T0051.000/.001/.002 são Direct/Indirect/Triggered; AML.T0054 é Jailbreak. A versão de dados deve acompanhar cada mapeamento.",
+      "limitacoes": ["dist/ATLAS.yaml legado está congelado; preferir o arquivo versionado v6.", "Triggered requer gatilho no ambiente; não é sinônimo de qualquer frase condicional."], "metricas": []
+    },
+    {
+      "id": "E15", "tema": "promptfoo-aquisicao", "status": "corrigido",
+      "enunciado": "Promptfoo anunciou acordo de aquisição pela OpenAI em 2026-03-09, não em 2025.",
+      "fontes": ["PROMPTFOO"], "localizador": "anúncio de acordo",
+      "contexto": "O texto consultado condiciona o fechamento; data de fechamento não verificada.",
+      "limitacoes": ["Versões, licenças, presets e plugins das ferramentas externas devem ser conferidos antes de instalação."], "metricas": []
+    },
+    {
+      "id": "E16", "tema": "integridade-operacional", "status": "recomendacao-projeto",
+      "enunciado": "Preservar exatidão de valores, destinatários e permissões; remover ruído diferencial genérico de task_summary operacional. Autenticar envelopes não garante veracidade nem autorização da ação.",
+      "fontes": ["FIPS186"], "localizador": "FIPS186-5 finalidade das assinaturas; revisão de engenharia local",
+      "contexto": "Aplicar schema, proveniência, identidade/tenant, política de negócio e aprovação vinculada à ação com expiração/anti-replay e revalidação no uso.",
+      "limitacoes": ["Privacidade diferencial só com mecanismo, sensibilidade e orçamento formal em agregações apropriadas, não em argumentos financeiros.", "Assinatura comprova origem/integridade sob hipóteses da chave/verificador, não confiança semântica.", "Auditoria genérica usa logs públicos/ações disponíveis, não CoT privado ou ativações inacessíveis."], "metricas": []
+    }
+  ]
+}

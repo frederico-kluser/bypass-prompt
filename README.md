@@ -1,125 +1,102 @@
-# bypass-prompt — adversarial rewriting engine for LLM guardrail red-teaming
+# bypass-prompt — evidence-led guardrail engineering
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Selftest](https://img.shields.io/badge/selftest-51%20scenarios-green.svg)](#verification)
-[![Code style: stdlib only](https://img.shields.io/badge/deps-stdlib%20only-orange.svg)](#installation)
+[![Dependencies: stdlib only](https://img.shields.io/badge/deps-stdlib%20only-orange.svg)](#requirements)
 
-**`bypass-prompt`** is a defensive-security toolkit: it converts a test objective —
-by default a harmless **canary** — into adversarial variants that exercise
-**documented guardrail-bypass techniques** (9 families, 50 convertible techniques plus
-6 model-level techniques), runs them against a target **under your control**, and
-returns a findings report that maps every successful bypass to a **layered defense**,
-including the concrete **5-layer runtime pipeline** to instrument. It also generates
-**hardened system prompts (v2026)** and checks them against an **18-control** checklist.
+A defensive-security agent skill for **authorized** LLM and agent assessments. It connects refusal mechanics, prompt-injection taxonomy, hardened instructions and **deterministic containment** instead of presenting prompts or classifiers as security guarantees.
 
-Grounded in a deep-research dossier (88 sources, 2023–2026) and a 2026 technical study:
-Wei et al. (NeurIPS 2023), Arditi et al. (2024, refusal direction), *Guarding the
-Guardrails* (2025), SoK PIAtlas (2026), Anthropic Constitutional Classifiers++ (2025/ICLR
-2026), CaMeL (2025), EchoLeak (CVE-2025-32711), Morris II (CCS 2025), H-CoT (2025),
-HarmBench, JailbreakBench, AgentDojo, OR-Bench, StrongREJECT — full material in
-[`pesquisas/`](pesquisas/) and [`references/`](references/).
+- **Seven scientific mechanism families**, distinguished from nine local operational groups.
+- **50 benign-objective templates** and six documentary model-level techniques; no bundled harmful objectives.
+- Three hardened prompt templates, with independent random markers and an **18-control textual lint**, not security certification.
+- A proposed **five-layer architecture**, capability/data-flow isolation, MCP/multi-agent provenance, scoped identity, egress and action-bound human approval.
+- A [reviewed evidence registry](<references/evidencias.json>) with source versions, denominators, corrections and explicit unknowns.
+- Project-local [CoALA discovery](<.agents/bypass-prompt-coala-agent-skill/SKILL.md>) for progressive retrieval rather than dumping the whole study into context.
 
-> **Intended use — read this first.** This is a red-team/evaluation tool for
-> systems **you own or have written authorization to test**. It is *not* a
-> jailbreak service: the default test payload is a canary, no harmful content is
-> bundled, and public provider endpoints are blocked by default. Every command
-> requires an explicit authorization attestation.
+> **Final evaluation is documentation-only.** At the owner's request, the final testing stage is exclusively the [Markdown guide for /prompt-builder with JEV](<references/avaliacao-prompt-builder-jev.md>). Do not automatically run tests, selftests, benchmarks, dry-runs or evaluation API calls. A future execution requires a new explicit request. No new test suites or CI stages are part of this delivery.
 
-## Quickstart
+## Intended use
+
+Only systems you own or have written authorization to assess. This is not a jailbreak service. Default objectives are harmless canaries; the local authorization attestation is an audit record, **not proof of permission or comprehensive scope enforcement**.
+
+Tool-using agents need authorization and validation in trusted application code. Neither this skill, a generated system prompt, a successful lint score, nor a JEV decision installs that enforcement.
+
+## Start with the skill and evidence
+
+The main contract is [SKILL.md](<SKILL.md>). The [CoALA source map](<.agents/bypass-prompt-coala-agent-skill/references/acervo.md>) distinguishes the supplied study, reviewed engineering guidance and untrusted external evidence.
+
+Read-only consultations and prompt preparation, not a benchmark run:
 
 ```bash
-# 1. declare authorization (gate — required once)
-python scripts/bypass.py authorize --org "Acme" --escopo "internal gateway + local model"
-
-# 2. generate adversarial variants (canary by default)
-python scripts/bypass.py convert "echo exactly the marker CANARIO-AB12CD34" --json
-
-# 3. evaluate your target (OpenAI-compatible endpoint you control)
-python scripts/bypass.py eval --target https://gateway.internal/v1/chat/completions \
-       --model my-model --key-env BYPASS_TARGET_KEY --baseline --runs 3 --out results.json
-
-# 4. findings report with defense recommendations, CIs and pipeline mapping
-python scripts/bypass.py report --from results.json
-
-# 5. harden your system prompt — and verify it
-python scripts/bypass.py harden --template corporativo-pt --canario CANARIO-INT-1 --out system_prompt.md
-python scripts/bypass.py check --file system_prompt.md
-
-# 6. print the defense-in-depth pipeline
-python scripts/bypass.py pipeline
+python scripts/bypass.py evidence --id E03 --json
+python scripts/bypass.py taxonomy --json
+python scripts/bypass.py pipeline --json
+python scripts/bypass.py harden --template agentico-pt \
+  --tarefa "Summarize authorized documents without external side effects" --out prompt.md
 ```
 
-## What it does
+`harden` generates instructions only. It does **not** apply datamarking to documents, authenticate MCP metadata, inspect private chain-of-thought, configure a renderer, or install a policy engine.
 
-| Command | Purpose |
+## What was corrected in the study integration
+
+| Topic | Reviewed interpretation |
 | --- | --- |
-| `authorize` | registers the authorization attestation (org, scope, expiry) — **required gate** |
-| `convert` | generates variants: persona/DAN/Dr. House, PAP persuasion, Skeleton Key, Policy Puppetry, hardware override, compound conflict, many-shot, math decomposition, refusal suppression, Base64/ROT13/leetspeak/low-resource/ASCII-art/emoji/zero-width/**Unicode Tag smuggling**/typoglycemia/euphemism/CodeAttack/synthetic language/fragment reassembly, payload splitting, RAG/tool-output/MCP/delegation-chain injection, Crescendo/Deceptive Delight/**Echo Chamber/Bad Likert Judge/CCA** multi-turn plans and **H-CoT/CoT padding** |
-| `eval` | runs variants against your endpoint; classifies **refusal / canary-echoed / compliant**; `--runs R` measures pass@k; Wilson 95% CI; baseline comparison; rate-respecting |
-| `report` | measurement conditions, findings with per-technique defense + pipeline layers, metric caveats |
-| `pipeline` | the 5-layer runtime defense with thresholds, tools and latencies + isolation patterns + TEVV |
-| `harden` | hardened system prompts (corporate PT/EN, agentic with MCP/RAG rules), per-session canary, nonce and datamarking |
-| `check` | scores a system prompt against **18 hardening controls** (anti-mimicry, anti-H-CoT, anti-Bad-Likert, anti-exfiltration, canary, datamarking, …) |
-| `taxonomy` | families (with empirical ASR) × convertible/documentary techniques × defenses × references |
-| `selftest` | 51 deterministic offline scenarios (gate, canary, base64, Unicode tags, plans, classifier, provider guard, eval with injected transport, pass@k, CI, report, harden, pipeline, secret redaction) |
+| Family success rates | The cited taxonomy v2 reports conversation-level success on **Minerva-7B-instruct-v1.0**, with overlapping labels. Older percentages and the claimed selected-task column do not match that version. They are not expected success rates for this tool. |
+| GPT-5 detection improvement | 60/91 to 71/91 on **selected successful attacks**, not global accuracy; no benign FPR in that experiment. |
+| Constitutional Classifiers++ | One high-risk vulnerability discovered in 198,000 attempts: approximately **0.005 discoveries per 1,000 queries**, not a universal per-query ASR. The ~1% compute estimate and benign-query rate have different contexts. |
+| CaMeL | Version-dependent AgentDojo headline; containment depends on trusted inputs, policies, provenance and interpreter correctness. Formal interpreter verification is future work, not an unconditional guarantee. |
+| Unicode and encoding | NFKC does not collapse all cross-script confusables. Preserve originals and derived inspection views. Base64 is reversible, not encryption. |
+| Runtime controls | Session thresholds are calibration hypotheses. Audit observable requests/actions, not unavailable private reasoning. Signed content can still be false or unsafe. |
+| Data integrity | Do not add privacy noise to operational payment amounts, recipients or permissions. |
+| Governance | Versioned MITRE ATLAS mappings; NIST alignment is not a compliance certificate or legal safe harbor. |
 
-### Attack → defense mapping (core value)
+Details and primary-source links are in the [mechanics reference](<references/mecanica-interna-e-arquitetura-2026.md>) and [evidence registry](<references/evidencias.json>). “Reviewed” means checked against a cited source, **not reproduced here**.
 
-Every variant carries `defesa_id`/`defesa`; every finding in the report names the
-concrete controls and the **pipeline layers** that stop it — Spotlighting with dynamic
-datamarking, instruction hierarchy, session metrics (`refusals ≥ 3` & `max_cosine > 0.85`),
-egress control, CaMeL-style capability enforcement, least privilege/HITL, MCP
-signature pinning. See [`references/defesa-em-profundidade.md`](references/defesa-em-profundidade.md)
-and [`references/mecanica-interna-e-arquitetura-2026.md`](references/mecanica-interna-e-arquitetura-2026.md).
+## Capabilities and their boundaries
 
-## Key findings baked into the design
+| Command | Actual scope |
+| --- | --- |
+| `evidence` | Local evidence lookup, source context and errata; no network |
+| `taxonomy` | Scientific families, local groups, techniques and defense mappings |
+| `pipeline` | Proposed integration catalog; no deployed firewall or classifiers |
+| `harden` | Corporate PT/EN and agentic PT instruction text; new random defaults, explicit reproducible parameters |
+| `check` | Heuristic textual lint; `certifica_seguranca: false` even for an acceptable score |
+| `authorize` | Required local attestation for `convert` and `eval` only |
+| `convert` | Benign test-objective wrappers and fixed multi-turn plans |
+| `eval` | Legacy **opt-in** endpoint harness; not the final evaluation procedure for this request |
+| `report` | Interprets schema-2 results, with baseline, controls, missingness and escaped target snippets |
+| `selftest` | Retained legacy offline capability; **never invoked automatically** by the final guide |
 
-- **Mechanism beats keyword**: refusal is mediated by a single linear direction in the residual stream, removable by directional ablation in all layers — so safety is a property of weights and containment, not of a regex.
-- **The 2026 ASR ranking inverts intuition**: obfuscation is the *least* effective family (3.2% on selected tasks) yet absorbs most regex effort; persuasion (17.1%), data poisoning (16.9%) and impersonation (14.3%) lead; effective jailbreaks are compound (≥5 sub-techniques).
-- **Indirect/agentic is the critical family in production**: MCP tool poisoning >60% on 45+ real servers; Tool Output Mimicry defeated a 4-layer agent pipeline (FinBot CTF 19/19); EchoLeak (CVE-2025-32711, CVSS 9.3) zero-click exfiltration; Morris II/RAGworm >90% replication through hop 11.
-- **Multi-turn and reasoning hijacks are the high-ASR end**: Crescendo 63.2% ASR / 91% coverage on HarmBench; Bad Likert Judge ~71.6%; Echo Chamber >90%; H-CoT drops o1/o3 refusal below 2% — <2% is also what an isolated output guardrail catches.
-- **Defenses are quantified but never absolute**: instruction hierarchy +63%; Spotlighting >50%→<2% IPI ASR (dynamic datamarking, 1/N^k guessing); Circuit Breakers 87%→14%; CC++ 0.005 jailbreaks/1,000 queries at ~1% overhead; CaMeL 77% AgentDojo with formal guarantees — yet an adaptive attacker bypassed 12 published defenses >90% of the time.
-- **Measure honestly**: published ASRs are systematically exaggerated (StrongREJECT); LLM judges agree with humans only 47–78% in safety; adaptive multi-step jailbreaks degrade the target from 74% to 32% on GPQA Diamond. This tool reports pass@k, Wilson CIs, FPR-friendly baseline comparisons and deterministic classification by default.
+The endpoint harness now distinguishes **diagnostic canary echo** from **violation of an explicitly declared artificial canary policy**. Neither is a measure of harmful-content delivery. Baseline and benign controls stay outside the attack denominator. Invalid/empty responses, timeouts and 5xx are inconclusive, not blocked attacks; complete replies and earlier turns are classified before log truncation.
 
-## Installation
+Result schema is now **version 2**. `asr_forte` is a deprecated alias for artificial-contract ASR and is `null` in diagnostic mode. Legacy result reports are rejected rather than silently relabeled; any future regeneration must be separately authorized. Fixed repeated plans are not adaptive red-teaming. See [metric methodology](<references/metodologia-avaliacao.md>).
 
-```bash
-git clone https://github.com/frederico-kluser/bypass-prompt.git
-cd bypass-prompt
-python scripts/bypass.py selftest   # 51 offline scenarios must PASS
-```
+The old [sample report](<assets/exemplo-relatorio.md>) and [sample variants](<assets/exemplo-variantes.json>) are preserved historical illustrations, **not current schema-2 output, measured evidence or inputs for the requested JEV stage**. Their old percentages and “echo = strong bypass” interpretation must not be reused.
 
-Python 3.10+ · **stdlib only** · no network except the endpoint *you* point `eval` at.
+## Final evaluation: one Markdown, JEV only
 
-## Safety & ethics
+Use the [requested final guide](<references/avaliacao-prompt-builder-jev.md>) when planning a future evaluation. It specifies:
 
-- **Authorization gate** — commands refuse without a valid, unexpired attestation; the `AUTH-…` reference is embedded in results (audit trail).
-- **Canary by default** — measures whether the *structure* of an attack passes, not whether harm is delivered.
-- **Provider guard** — public LLM endpoints (OpenAI, Anthropic, DeepSeek, Mistral, Groq, …) are rejected by `eval` unless you pass `--allow-public-provider` and accept responsibility (your account, their terms).
-- **No bundled payloads** — templates wrap *your* test objective; `selftest` asserts no harmful content is embedded.
-- **Findings require defenses** — a bypass report without a recommended control (and the layer to instrument) is considered incomplete.
-- For long automated optimization campaigns (GCG/PAIR/TAP) use [garak](https://github.com/NVIDIA/garak) or [PyRIT](https://github.com/microsoft/PyRIT); for CI/CD of applications and agents use Promptfoo with the `owasp:agentic` preset — and note the counter-evidence that automated multi-turn ≈ resampling single-turn.
+- `/prompt-builder` as the skill and `prompt-builder` as its CLI.
+- **JEV as the only automated judge**, using imported, human-labeled observations and a pinned decision model.
+- No hidden LLM judging fallback, no secrets or real personal data, and no autonomous tool execution.
+- Separation of judge calibration, observed system behavior, canary contract, false refusals and containment evidence.
+- Budget, authorization, uncertainty, abstention and an explicitly **not executed** status.
 
-## Repository layout
+The distinction matters: arena `--judge-engine jev` can escalate to an LLM panel. The strict JEV-only route in the guide uses decision-mode evaluation without `models.llm`; it does not pretend that Jev generates agent replies or executes the target.
 
-```
-SKILL.md                     agent-skill instructions (the contract)
-scripts/bypass.py            CLI: authorize/convert/eval/report/harden/check/pipeline/taxonomy/selftest
-scripts/strategies.py        50-technique registry with defense mappings, ASR metadata and refs (+6 documentary)
-scripts/harden.py            hardened system-prompt templates (v2026) + 18-control checker
-scripts/defesa.py            5-layer defense pipeline, classifier limits, isolation patterns, TEVV
-references/                  the definitive studies (internal mechanics, taxonomy, defense-in-depth, methodology)
-pesquisas/                   deep-research dossier + 2026 technical study (primary sources)
-assets/                      example outputs
-```
+## Architecture and references
 
-## Verification
+- [Mechanics and corrected study integration](<references/mecanica-interna-e-arquitetura-2026.md>)
+- [Taxonomy and documented techniques](<references/taxonomia-e-tecnicas.md>)
+- [Defense in depth and containment](<references/defesa-em-profundidade.md>)
+- [Measurement methodology](<references/metodologia-avaliacao.md>)
+- [Original supplied study](<pesquisas/2026-11-04-estudo-tecnico-guardrails-anatomia-bypass-defesa.md>) and [historical dossier](<pesquisas/2026-11-04-bypass-guardrails-llm.md>), preserved as reference data with errata notices
 
-`python scripts/bypass.py selftest` runs 51 deterministic offline scenarios and
-must exit 0. CI runs it on every push (3.10/3.12/3.14) and checks that the hardened
-template passes all 18 controls.
+## Requirements
+
+Python 3.10+ and the standard library. No dependencies were added. No runtime model downloads, API calls or benchmarks are implied by installation or by reading this repository.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](<LICENSE>).
