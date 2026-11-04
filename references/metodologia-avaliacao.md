@@ -1,6 +1,6 @@
 # Metodologia de métricas — contratos, evidência e desconhecidos
 
-> Este documento define **como interpretar** uma avaliação. Não autoriza sua execução. A etapa final deste pedido é exclusivamente o [roteiro Markdown /prompt-builder + JEV](<avaliacao-prompt-builder-jev.md>), sem testes, selftests, dry-runs, benchmarks ou chamadas de avaliação automáticos.
+> Este documento define **como interpretar** uma avaliação e não autoriza sua execução. O [roteiro Markdown /prompt-builder + JEV](<avaliacao-prompt-builder-jev.md>) registra a entrega documental anterior. O [laboratório defensivo posterior](<laboratorio-defensivo-glm-jev.md>) é opt-in, exige novo pedido/teto de gasto e distingue anotações sintéticas sem ouro de uma avaliação calibrada; nenhuma execução é automática.
 
 ## 1. Especificar o que conta como sucesso
 
@@ -108,4 +108,4 @@ StrongREJECT mostra como avaliações podem superestimar jailbreaks ao aceitar r
 
 Números de fonte externa precisam de unidade, denominador, versão e contexto; consultar [E01–E16](<evidencias.json>). Norma ou red teaming documentado não geram certificação ou safe harbor automaticamente.
 
-**Estado desta entrega:** planejamento documental e revisão estática. A avaliação final com /prompt-builder e JEV não foi executada; não há resultado final de testes para declarar.
+**Estado da entrega documental anterior:** planejamento e revisão estática, sem avaliação final JEV executada. Resultados de qualquer laboratório posterior devem constar dos próprios journals/relatórios, com distinção entre testes offline, anotações sem ouro humano e benchmark calibrado; não reutilizar este registro histórico como laudo de uma execução nova.

@@ -13,7 +13,7 @@ A defensive-security agent skill for **authorized** LLM and agent assessments. I
 - A [reviewed evidence registry](<references/evidencias.json>) with source versions, denominators, corrections and explicit unknowns.
 - Project-local [CoALA discovery](<.agents/bypass-prompt-coala-agent-skill/SKILL.md>) for progressive retrieval rather than dumping the whole study into context.
 
-> **Final evaluation is documentation-only.** At the owner's request, the final testing stage is exclusively the [Markdown guide for /prompt-builder with JEV](<references/avaliacao-prompt-builder-jev.md>). Do not automatically run tests, selftests, benchmarks, dry-runs or evaluation API calls. A future execution requires a new explicit request. No new test suites or CI stages are part of this delivery.
+> **No automatic evaluation.** The [previous final guide](<references/avaliacao-prompt-builder-jev.md>) records a documentation-only delivery. A subsequent explicit implementation/testing request adds an isolated [defensive GLM + prompt-builder + JEV laboratory](<references/laboratorio-defensivo-glm-jev.md>). Reading or installing the skill still does not authorize tests, API spending or automatic deployment. The laboratory does not implement jailbreak conversion, detector evasion or refusal rerouting; CI is unchanged.
 
 ## Intended use
 
@@ -73,9 +73,9 @@ Result schema is now **version 2**. `asr_forte` is a deprecated alias for artifi
 
 The old [sample report](<assets/exemplo-relatorio.md>) and [sample variants](<assets/exemplo-variantes.json>) are preserved historical illustrations, **not current schema-2 output, measured evidence or inputs for the requested JEV stage**. Their old percentages and “echo = strong bypass” interpretation must not be reused.
 
-## Final evaluation: one Markdown, JEV only
+## Previous documentation-only protocol: JEV only
 
-Use the [requested final guide](<references/avaliacao-prompt-builder-jev.md>) when planning a future evaluation. It specifies:
+Use the [historical final guide](<references/avaliacao-prompt-builder-jev.md>) when planning a human-labeled evaluation. It specifies:
 
 - `/prompt-builder` as the skill and `prompt-builder` as its CLI.
 - **JEV as the only automated judge**, using imported, human-labeled observations and a pinned decision model.
@@ -84,6 +84,21 @@ Use the [requested final guide](<references/avaliacao-prompt-builder-jev.md>) wh
 - Budget, authorization, uncertainty, abstention and an explicitly **not executed** status.
 
 The distinction matters: arena `--judge-engine jev` can escalate to an LLM panel. The strict JEV-only route in the guide uses decision-mode evaluation without `models.llm`; it does not pretend that Jev generates agent replies or executes the target.
+
+## Optional defensive laboratory
+
+The [opt-in laboratory guide](<references/laboratorio-defensivo-glm-jev.md>) documents the new [internal API](<scripts/defensive_api.py>), [collector and paired analysis](<scripts/defensive_lab.py>) and [local prompt-builder adapter](<scripts/prompt_builder_rewrite.mjs>). It pins GLM 5.3 Flash at maximum announced effort for a single blinded defensive proposal and synthetic text collection, then uses decision-mode JEV without a judge LLM fallback.
+
+No detector feedback is sent to the rewriter. Every defensive policy bullet is a literal never-break clause. API refusals are not rerouted; partial/invalid observations are inconclusive. Without independent human gold, results are explicitly **uncalibrated descriptive annotations**, not proof of efficacy or judge accuracy. Candidate prompts are not applied automatically.
+
+Offline checks for this opt-in implementation (no model calls):
+
+```bash
+python3 -m unittest discover -s tests -v
+node --test tests/test_prompt_builder_rewrite.mjs
+```
+
+Python remains stdlib-only. The optional adapter additionally needs Node 20.11+ and an already-built local prompt-builder installation; it records hashes because its imports are internal, not a stable public API. New tests are local and add no CI stage.
 
 ## Architecture and references
 
