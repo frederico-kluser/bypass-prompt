@@ -1,0 +1,43 @@
+# =============================================================================
+# Release Please — bypass-prompt (frederico-kluser/bypass-prompt)
+#
+# NOTA (para o agente): fixe as actions por SHA com `bash scripts/oss-pin-actions.sh`
+# antes do primeiro push (owner/repo@<PIN_SHA> # vX.Y.Z).
+#
+# NOTA sobre tokens e environments: a PUBLICAÇÃO (npm/PyPI/etc.) nunca deve usar
+# secrets ao nível do repositório. Se existir um job de publicação, coloque-o num
+# `environment: production` com os tokens (NPM_TOKEN, PYPI_TOKEN, ...) registados
+# nesse environment e aprovação manual obrigatória — ver o exemplo comentado abaixo.
+# Use APENAS release-please OU semantic-release, nunca os dois.
+# =============================================================================
+
+name: Release Please
+
+on:
+  push:
+    branches:
+      - "main"
+
+# Privilégio mínimo; o elevado é declarado só no job que precisa dele.
+permissions:
+  contents: read
+
+# Nunca cancelar uma release em curso.
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release PR / GitHub Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write        # criar tags, releases e commits no release PR
+      pull-requests: write   # abrir/atualizar/fechar o PR de release
+    steps:
+      - name: Release Please
+        uses: googleapis/release-please-action@c2a5a2bd6a758a0937f1ddb1e8950609867ed15c # v4.3.0
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

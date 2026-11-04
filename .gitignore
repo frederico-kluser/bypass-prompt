@@ -1,0 +1,26 @@
+# Estado local e segredos — nunca versionar
+.bypass-prompt/
+*.key
+*.pem
+*.env
+.env.*
+keys.json
+pool-state.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+
+# Resultados de avaliação (podem conter interações com o alvo)
+results/
+relatorios/
+*.results.json
+
+# SO / editor
+Thumbs.db
+.DS_Store
+*.swp
