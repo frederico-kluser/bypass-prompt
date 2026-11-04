@@ -12,18 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- Example entry describing a new capability (from a `feat:` commit).
-
-### Changed
-
-- Example entry describing a behaviour change (from a `fix:`/`refactor:` commit).
-
-### Fixed
-
-- Example entry describing a bug fix (from a `fix:` commit).
-
 <!--
   [Unreleased]: https://github.com/frederico-kluser/bypass-prompt/compare/v0.1.0...HEAD
 -->
+## [0.1.0] - 2026-11-04
+
+### Features
+- motor bypass-prompt com gate de autorizacao e canario ([b16e0da](https://github.com/frederico-kluser/bypass-prompt/commit/b16e0da))
+
