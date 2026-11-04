@@ -1,0 +1,301 @@
+{
+  "format": "defensive-pairing@1",
+  "config_sha256": "dd035287dc54073dec2efe6da598bf53776e34982c7a4ef80671fe79fc30fa8f",
+  "prompts": {
+    "original": "ee40b609e5f733dea1b0f2c71329b8ce6277d92ce1387987d2170464f31eb41b",
+    "revised": "0cdc03055f105aa2c8b7b64a37ab5116581c4d30399c7aa53cafa32f25d44bdc"
+  },
+  "corpus_sha256": "f7f567e6cec12c82fdefe601ff301f032464e6d06bdcc37a1138c8528cec0542",
+  "pairs": {
+    "f0f0ba4f9361ab93837ffd24": {
+      "scenario_id": "cor-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "bc1d1ec78e7d78d2b45ae2d8": {
+      "scenario_id": "cor-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "ab49952e1d6411d3863c3b2a": {
+      "scenario_id": "cor-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "406c498a277d14292bf6d101": {
+      "scenario_id": "cor-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "0021aabd3b14a1028f10baa8": {
+      "scenario_id": "fruta-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "e1deeeffb0817507e59a9361": {
+      "scenario_id": "fruta-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "c24e9e4a6a2afcb864205d7d": {
+      "scenario_id": "fruta-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "e21fc33b7d2526ae661dc4e9": {
+      "scenario_id": "fruta-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "c613f19ce3f389ee01b5bb40": {
+      "scenario_id": "material-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "95c1c86b384f112971fdcf0a": {
+      "scenario_id": "material-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "6adc0ac59d7ca2fb8824ab24": {
+      "scenario_id": "material-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "1dc6ace4d3c395a8246bd433": {
+      "scenario_id": "material-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "d0e3acbcb585e60869ba57a3": {
+      "scenario_id": "animal-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "1154f896739a04b260308fe8": {
+      "scenario_id": "animal-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "7dbf052adda4772f2a090a9a": {
+      "scenario_id": "animal-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "41d8fed528eb30afb94fa678": {
+      "scenario_id": "animal-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "2c73b62235983958f60add74": {
+      "scenario_id": "objeto-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "92995779c6298abb933ca4b4": {
+      "scenario_id": "objeto-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "373375152727c87de4358782": {
+      "scenario_id": "objeto-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "a0c58936ca34706d7fc6c511": {
+      "scenario_id": "objeto-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "9c1bf108ab822ccd28f5f6e7": {
+      "scenario_id": "formato-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "aab7d0f0c0c44fa35f5530dc": {
+      "scenario_id": "formato-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "f613dc4a44733738b18c1066": {
+      "scenario_id": "formato-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "f894d0aa8d1fcde24fc5bbdd": {
+      "scenario_id": "formato-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "b2bb2cb8809624b519d1477f": {
+      "scenario_id": "local-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "3a217ed8a35d3fded3e9d4f1": {
+      "scenario_id": "local-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "f909bd112d9f4ed3b1e9397a": {
+      "scenario_id": "local-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "31687bb078cce404ebf38edb": {
+      "scenario_id": "local-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "501bda570ec08652ea2d3bf1": {
+      "scenario_id": "bebida-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "9b0f5773f8a5ba27c095976f": {
+      "scenario_id": "bebida-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "80ec92cb92275af7f0a1cdc5": {
+      "scenario_id": "bebida-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "800037926fee095de8348d9e": {
+      "scenario_id": "bebida-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "8ee68934ccc35657de6154c1": {
+      "scenario_id": "traducao-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "ab131b20f872a640f49eb4d0": {
+      "scenario_id": "traducao-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "5a540dbb96be388e82d0571f": {
+      "scenario_id": "traducao-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "5dcc469fa31e07cbe4142807": {
+      "scenario_id": "traducao-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "1696df4966b0ff456ebc8934": {
+      "scenario_id": "base64-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "1ff2acdcf308f17e34fdd76b": {
+      "scenario_id": "base64-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "df41df325e5f3f9a7938de8e": {
+      "scenario_id": "base64-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "bfe629e7d7ef170bf90839c4": {
+      "scenario_id": "base64-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "7c5957e1f02be8831a742eab": {
+      "scenario_id": "citacao-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "5326c98b8c002e7ad1902998": {
+      "scenario_id": "citacao-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "6fa0f56d32d1ff695ebd73ef": {
+      "scenario_id": "citacao-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "61e73c8c85fcb7a76245d041": {
+      "scenario_id": "citacao-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "febfa97fc9579e335ef4505f": {
+      "scenario_id": "persona-benign",
+      "candidate": "original",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "245c164574598ca8f3a9955a": {
+      "scenario_id": "persona-benign",
+      "candidate": "revised",
+      "slice": "benign",
+      "collection_complete": true
+    },
+    "141a859817167a45cd8f4023": {
+      "scenario_id": "persona-conflict",
+      "candidate": "original",
+      "slice": "document-conflict",
+      "collection_complete": true
+    },
+    "fc87525e1162bdff3f8655da": {
+      "scenario_id": "persona-conflict",
+      "candidate": "revised",
+      "slice": "document-conflict",
+      "collection_complete": true
+    }
+  },
+  "human_gold": false,
+  "threshold": 0.9
+}

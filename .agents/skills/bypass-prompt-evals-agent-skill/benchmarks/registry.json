@@ -1,0 +1,117 @@
+{
+  "format": "bypass-prompt-benchmarks@1",
+  "updated": "2026-11-04",
+  "skill": "bypass-prompt-evals-agent-skill",
+  "policy": "Offline by default. Recorded results are evidence of past runs, not a current measurement or authorization to spend.",
+  "benchmarks": [
+    {
+      "id": "defensive-prompt-lab-v1",
+      "kind": "model-evaluation",
+      "status": "executed",
+      "date": "2026-11-04",
+      "summary": "One blinded defensive prompt proposal versus the original on 24 synthetic scenarios; JEV annotations only, no human gold.",
+      "cases": 24,
+      "model": "z-ai/glm-5.3-flash",
+      "judge": "typesafe/jev-1.13",
+      "judge_snapshot": "typesafe/jev-1.13-20260917",
+      "recorded": {
+        "decisive_pairs": 20,
+        "planned_pairs": 24,
+        "utility_delta_pp": 0.0,
+        "external_instruction_adopted_pairs": 0,
+        "cost_usd": "0.0210912759999999997",
+        "run_id": "04980947-43f3-4dc2-8b13-bd47c8418969"
+      },
+      "human_gold": false,
+      "limitations": [
+        "No independent human gold; judge accuracy and calibration were not measured.",
+        "One response per prompt/scenario, sequential collection and a small convenience corpus.",
+        "Descriptive annotations only; not proof of security, containment or generalization."
+      ],
+      "files": {
+        "benchmarks/defensive-lab-20261104/relatorio-final.md": "ee47c5961d255be15f5ecf2113dab77999919b2fece85125aad45df46550cf5d",
+        "benchmarks/defensive-lab-20261104/comparison.json": "5176044ad7e92406dd61133daa914dd579335bf8ffc6956cef99c1727c087c8e",
+        "benchmarks/defensive-lab-20261104/comparison.md": "e6536bc1a07a050cd9509055a380e54369ff8ec1d973860bca769403191e6197",
+        "benchmarks/defensive-lab-20261104/diagnostics.json": "fd476b2d1cad14638991e7e654ec522a965a168f40fb2fe2c98dfa6ea60fc9d0",
+        "benchmarks/defensive-lab-20261104/manifest.json": "fcbdd78a5349b492f4d11b3b7523b1ac6c42184434e642905359ad488a99d451",
+        "benchmarks/defensive-lab-20261104/jev-run.json": "81c71bb8bf9cd14206f7e712b172631ef56ef82729600fd43f49ab420d0fa06b",
+        "benchmarks/defensive-lab-20261104/original.md": "ee40b609e5f733dea1b0f2c71329b8ce6277d92ce1387987d2170464f31eb41b",
+        "benchmarks/defensive-lab-20261104/revised.md": "0cdc03055f105aa2c8b7b64a37ab5116581c4d30399c7aa53cafa32f25d44bdc",
+        "benchmarks/defensive-lab-20261104/rewrite.summary.json": "663ba50d4bd33d91c50438ed303658517885698ca25541278574f9827b373f67",
+        "benchmarks/defensive-lab-20261104/original.observations.jsonl": "ea8ed5d70f0779be8d0124838d1280a57963fe068f6ea996aa63c7c53ec1084b",
+        "benchmarks/defensive-lab-20261104/revised.observations.jsonl": "91b9cfcd3a1db4ff22daf3db5c4d79951fea23c5ab2eeb2ec64c108c5648bff7",
+        "benchmarks/defensive-lab-20261104/jev-eval.json": "1c02f5a55c5a29368d78be9438dc3e27be188bb18fd19337bd84fee431f6195e",
+        "benchmarks/defensive-lab-20261104/jev-eval.preflight-v1.json": "53dcf67d4706df0fed4306c16f0f120d41e65dd4512a35d229dfb69c3eddb9c2",
+        "benchmarks/defensive-lab-20261104/pairing.json": "308bcc6bf47328402713acf149cc77031754fcac58f6a05bbec557d1866c8776"
+      }
+    },
+    {
+      "id": "policy-risk-classification-v1",
+      "kind": "request-classification-corpus",
+      "status": "exported-not-executed",
+      "date": "2026-11-04",
+      "summary": "Sixty non-operational high-level request cases in ten risk domains, exported for JEV-only classification; no model run.",
+      "cases": 60,
+      "judge": "typesafe/jev-1.13",
+      "recorded": {
+        "refuse": 27,
+        "answer": 19,
+        "clarify": 9,
+        "safety_support": 5,
+        "categories": 10
+      },
+      "human_gold": false,
+      "limitations": [
+        "References were curated by the agent (origin ai, humanReviewed false), not by independent humans.",
+        "The JEV config keeps expected empty, so no accuracy/calibration claim is made.",
+        "Request classification is not an evaluation of an assistant response or of runtime containment."
+      ],
+      "files": {
+        "benchmarks/policy-risk-20261104/cases.json": "baa0aeba4c715e8c8d3ff288f822fc67fb7b92286a16f6e7543a5b5bcd954812",
+        "benchmarks/policy-risk-20261104/references.json": "8909014802f2f13509a27cfba7e500beaef220fb19e346eea316354e0aebb5b3",
+        "benchmarks/policy-risk-20261104/review.md": "9657eb3c2265705871dbcf7ecb12ec915f9129749f73e1737e3b8141472d9437",
+        "benchmarks/policy-risk-20261104/manifest.json": "604b54c207bb71fef1f96e2c8c9576b874fef11fea0b6832e7cbfe26176e708f",
+        "benchmarks/policy-risk-20261104/jev-policy.json": "7656bd7f7db6f0e035d0b2516cad2aca82459a0d889df5625cb1211f017d48e0"
+      }
+    },
+    {
+      "id": "legacy-harness-selftest",
+      "kind": "offline-suite",
+      "status": "offline-suite",
+      "summary": "Legacy bypass-prompt selftest, run against the project scripts; deterministic and offline.",
+      "recorded": {
+        "checks": 51
+      },
+      "human_gold": false,
+      "limitations": [
+        "The selftest exercises the legacy harness, not a live target or a security certification."
+      ]
+    },
+    {
+      "id": "prompt-builder-adapter-offline",
+      "kind": "offline-suite",
+      "status": "offline-suite",
+      "summary": "Node suite for the prompt-builder adapter, with fake transports and no model calls.",
+      "recorded": {
+        "tests": 87
+      },
+      "human_gold": false,
+      "limitations": [
+        "Integration uses local internal prompt-builder modules; a compiled checkout is required."
+      ]
+    },
+    {
+      "id": "python-offline-suites",
+      "kind": "offline-suite",
+      "status": "offline-suite",
+      "summary": "Python suites covering the fixed OpenRouter client, the laboratory, the policy corpus and benchmark integrity.",
+      "recorded": {
+        "tests": 90
+      },
+      "human_gold": false,
+      "limitations": [
+        "All network transports are fakes; the suites do not prove provider behavior."
+      ]
+    }
+  ]
+}

@@ -20,7 +20,7 @@ Transforma o estudo fornecido em um **contrato de trabalho utilizável**, não e
 - Preparar canários e um **plano** autorizado de avaliação, distinguindo eco, violação contratual e dano real.
 - Conferir uma métrica, sua fonte, unidade, amostra e limitações antes de citá-la.
 
-Não usar contra terceiros sem autorização, para produzir conteúdo nocivo ou como jailbreak-as-a-service. O catálogo usa objetivos benignos; a declaração de autorização é uma **atestação local**, não prova jurídica nem enforcement completo de escopo.
+Não usar contra terceiros sem autorização, para produzir conteúdo nocivo ou como jailbreak-as-a-service. O catálogo legado de conversão usa objetivos benignos; a declaração de autorização é uma **atestação local**, não prova jurídica nem enforcement completo de escopo. O [corpus separado de risco/recusa](<references/casos-risco-e-recusa.md>) contém pedidos de intenção nociva descritos em alto nível **somente para classificação**, sem conteúdo operacional, coleta GLM ou reescrita de evasão.
 
 ## Entrada: CoALA primeiro, fonte atual depois
 
@@ -78,6 +78,27 @@ python scripts/bypass.py taxonomy --json
 python scripts/bypass.py pipeline --json
 python scripts/bypass.py harden --template agentico-pt --tarefa "Resumir documentos autorizados sem efeitos externos" --out prompt.md
 ```
+
+## Testes e benchmarks — skill dedicada
+
+As suítes e os benchmarks vivem agora na [skill de avaliação](<.agents/skills/bypass-prompt-evals-agent-skill/SKILL.md>). Um único comando verifica tudo offline (suítes Python e Node, selftest legado, templates e hashes dos benchmarks), sem chave, rede ou modelo:
+
+```bash
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/run_checks.py
+```
+
+## Casos de política e recusa — caminho separado
+
+O [corpus versionado](<.agents/skills/bypass-prompt-evals-agent-skill/assets/casos-politica-risco-v1.json>) oferece 60 pedidos em dez categorias: pentest, armas, manipulação, fraude, privacidade, violência, materiais perigosos, autolesão, integridade pública e saúde/consentimento. Há referências de recusa, atendimento legítimo, esclarecimento e apoio em crise; não tratar todo tema sensível como proibido nem toda crise como caso de recusa seca.
+
+```bash
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --list
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --list --category pentest --category armas --action refuse
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --out-dir results/casos-politica --budget 0.10
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --verify results/casos-politica
+```
+
+São operações locais, sem inferência. Não enviar esses pedidos a `collect`, ao conversor ou ao reescritor; não relaxar o escopo congelado do piloto benigno. Referências são curadoria do agente (`origin: ai`, `humanReviewed: false`), não ouro humano. A configuração JEV conserva `expected: {}` e recebe só pedido/política geral, sem rótulos ou justificativas. O parser da instalação inspecionada pode perder a proveniência; validar não certifica revisão humana. Seguir o [guia de risco e recusa](<references/casos-risco-e-recusa.md>), sem alegar nova eficácia ou executar chamadas pagas automaticamente.
 
 ## Higiene de métricas que o agente deve respeitar
 

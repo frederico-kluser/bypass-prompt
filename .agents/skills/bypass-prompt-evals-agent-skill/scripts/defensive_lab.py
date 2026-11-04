@@ -4,6 +4,8 @@
 prepare -> catalog -> collect --dry-run -> explicit budget approval -> collect
 -> export-jev -> prompt-builder jev eval -> compare. Proposal generation belongs
 only to prompt_builder_rewrite.mjs. No JEV observations go to that rewriter.
+policy-cases separately lists/exports high-level request-classification fixtures;
+those fixtures never enter collect or a generative rewriter.
 """
 from __future__ import annotations
 
@@ -18,8 +20,14 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
+# The skill owns the benchmark tooling; the project still owns harden.py.
+# BYPASS_PROMPT_ROOT lets a copy run against another checkout of the project.
+_PROJECT_ROOT = Path(os.environ.get("BYPASS_PROMPT_ROOT") or Path(__file__).resolve().parents[4])
+sys.path.insert(0, str(_PROJECT_ROOT / "scripts"))
+
 import defensive_api as api
 import harden
+import policy_cases
 
 TASK = ("Responder a tarefas textuais benignas sobre documentos sintéticos, incluindo extração, "
         "tradução e decodificação, no formato solicitado pelo usuário, sem ferramentas nem efeitos externos")
@@ -109,6 +117,8 @@ def prepare(directory):
 def read_lab(directory):
     directory = Path(directory)
     manifest = load_json(directory / "manifest.json")
+    if manifest.get("format") != "defensive-lab@1":
+        raise api.LabError("este pacote não autoriza coleta gerativa", "use somente o laboratório benigno congelado; pacotes de política são classification-only", code="lab.scope")
     original = (directory / "original.md").read_text(encoding="utf-8-sig")
     cases = load_json(directory / "cases.json")
     if manifest.get("format") != "defensive-lab@1" or api.digest(original) != manifest.get("original_sha256") or api.digest(cases) != manifest.get("corpus_sha256"):
@@ -381,6 +391,16 @@ def main(argv=None):
     p = sub.add_parser("compare")
     p.add_argument("directory")
     p.add_argument("--record", required=True)
+    p = sub.add_parser("policy-cases", help="listar/filtrar/exportar casos de classificação; nenhuma inferência")
+    modes = p.add_mutually_exclusive_group(required=True)
+    modes.add_argument("--list", action="store_true", help="mostrar categorias e contagens locais")
+    modes.add_argument("--out-dir", help="criar pacote novo de classificação JEV-only")
+    modes.add_argument("--verify", help="verificar hashes e contrato de um pacote existente")
+    p.add_argument("--category", action="append", help="categoria; repetível, veja --list")
+    p.add_argument("--action", action="append", choices=tuple(policy_cases.ACTIONS))
+    p.add_argument("--slice", action="append", choices=policy_cases.SLICES)
+    p.add_argument("--budget", help="teto USD na configuração exportada; não executa chamada")
+    p.add_argument("--jev-model", choices=policy_cases.MODELS, help="modelo explícito; padrão preserva Jev 1.13")
     args = parser.parse_args(argv)
     try:
         if args.command == "prepare":
@@ -394,8 +414,26 @@ def main(argv=None):
             result = collect(args.directory, args.candidate, budget=args.budget, live=args.live, max_tokens=args.max_tokens)
         elif args.command == "export-jev":
             result = export_jev(args.directory, budget=args.budget)
-        else:
+        elif args.command == "compare":
             result = compare(args.directory, args.record)
+        elif args.command == "policy-cases":
+            if args.verify:
+                if any((args.category, args.action, args.slice, args.budget, args.jev_model)):
+                    raise api.LabError("--verify não recebe filtros/modelo/orçamento", "verifique o pacote exatamente como foi exportado", code="policy.arguments")
+                result = policy_cases.verify_packet(args.verify)
+            else:
+                corpus = policy_cases.load_corpus()
+                cases = policy_cases.select_cases(corpus, categories=args.category, actions=args.action, slices=args.slice)
+                if args.list:
+                    if args.budget is not None or args.jev_model is not None:
+                        raise api.LabError("listagem não executa nem configura modelos", "use --out-dir para exportar uma configuração", code="policy.arguments")
+                    result = policy_cases.summarize(corpus, cases)
+                else:
+                    if args.budget is None:
+                        raise api.LabError("orçamento ausente na exportação", "informe --budget USD; exportar não autoriza gastar", code="budget.required")
+                    result = policy_cases.export_packet(args.out_dir, corpus, cases, budget=args.budget,
+                        model=args.jev_model or JEV_MODEL,
+                        filters={"categories": args.category or [], "actions": args.action or [], "slices": args.slice or []})
         print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
         return 0
     except api.LabError as exc:

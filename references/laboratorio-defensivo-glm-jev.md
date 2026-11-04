@@ -8,12 +8,16 @@ O [roteiro anterior](<avaliacao-prompt-builder-jev.md>) permanece um registro hi
 
 Componentes novos:
 
-- [API interna Python](<../scripts/defensive_api.py>): OpenRouter fixado, modelo `z-ai/glm-5.3-flash`, `reasoning.effort: "max"`, provider `z-ai/fp8`, sem fallback, sem ferramentas.
-- [Laboratório Python](<../scripts/defensive_lab.py>): corpus sintético fixo, coleta, exportação de observações e análise pareada.
-- [Adaptador prompt-builder](<../scripts/prompt_builder_rewrite.mjs>): **uma proposta defensiva cega** usando a implementação local de `generateContestants`, sem arena, agente ou juiz LLM.
-- [Testes da API](<../tests/test_defensive_api.py>) e [testes do laboratório](<../tests/test_defensive_lab.py>): transportes falsos, sem chamadas de modelo.
+- [API interna Python](<../.agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_api.py>): OpenRouter fixado, modelo `z-ai/glm-5.3-flash`, `reasoning.effort: "max"`, provider `z-ai/fp8`, sem fallback, sem ferramentas.
+- [Laboratório Python](<../.agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py>): corpus sintético fixo, coleta, exportação de observações e análise pareada.
+- [Adaptador prompt-builder](<../.agents/skills/bypass-prompt-evals-agent-skill/scripts/prompt_builder_rewrite.mjs>): **uma proposta defensiva cega** usando a implementação local de `generateContestants`, sem arena, agente ou juiz LLM.
+- [Testes da API](<../.agents/skills/bypass-prompt-evals-agent-skill/tests/test_defensive_api.py>) e [testes do laboratório](<../.agents/skills/bypass-prompt-evals-agent-skill/tests/test_defensive_lab.py>): transportes falsos, sem chamadas de modelo.
 
 A biblioteca Python usa apenas stdlib e Python 3.10+. O adaptador requer Node 20.11+ e uma instalação **já compilada** de `prompt-builder-cli`. Não instala dependências, não inicia um servidor e não altera o projeto externo.
+
+## Corpus adicional de risco — outro objeto de avaliação
+
+O [guia de risco e recusa](<casos-risco-e-recusa.md>) e o [corpus de 60 pedidos](<../.agents/skills/bypass-prompt-evals-agent-skill/assets/casos-politica-risco-v1.json>) ampliam as categorias e opções de seleção **somente para classificação JEV-only de pedidos**. Essa expansão não muda os 24 cenários, os prompts ou os resultados do piloto descrito abaixo. Não enviar os novos pedidos a este coletor GLM nem ao reescritor; eles não são um modo ampliado de geração de respostas nocivas.
 
 ## Modelo e roteamento
 
@@ -46,13 +50,14 @@ Para conclusões mais fortes, obter revisão humana, corpus representativo e spl
 A execução é opt-in. Os caminhos abaixo são exemplos de destinos locais novos; não sobrescrever uma experiência existente.
 
 ```powershell
-python3 -m unittest discover -s tests -v
-node --test tests/test_prompt_builder_rewrite.mjs
-node --check scripts/prompt_builder_rewrite.mjs
-python3 scripts/defensive_lab.py prepare results/meu-piloto
-python3 scripts/defensive_lab.py catalog results/meu-piloto
-python3 scripts/defensive_lab.py collect results/meu-piloto --candidate original --budget 0.30 --dry-run
-node scripts/prompt_builder_rewrite.mjs --directory results/meu-piloto --prompt-builder-root C:/Users/kluse/Projects/prompt-builder --budget 0.10 --dry-run
+# Da raiz do projeto: todas as verificações offline (sem chave, rede ou modelo).
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/run_checks.py
+node --test .agents/skills/bypass-prompt-evals-agent-skill/tests/test_prompt_builder_rewrite.mjs
+node --check .agents/skills/bypass-prompt-evals-agent-skill/scripts/prompt_builder_rewrite.mjs
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py prepare results/meu-piloto
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py catalog results/meu-piloto
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py collect results/meu-piloto --candidate original --budget 0.30 --dry-run
+node .agents/skills/bypass-prompt-evals-agent-skill/scripts/prompt_builder_rewrite.mjs --directory results/meu-piloto --prompt-builder-root C:/Users/kluse/Projects/prompt-builder --budget 0.10 --dry-run
 ```
 
 `catalog` consulta somente endpoints públicos, sem enviar chave nem chamar um modelo. Os outros pré-voos acima são locais. O dry-run do adaptador registra versão/hashes de módulos internos e um `operationSha256`. A execução exige esse hash aprovado; alterar versão, prompt, técnica, preço ou teto muda a identidade.
@@ -62,13 +67,13 @@ node scripts/prompt_builder_rewrite.mjs --directory results/meu-piloto --prompt-
 ## Proposta e coleta — somente após autorização de gasto
 
 ```powershell
-node scripts/prompt_builder_rewrite.mjs --directory results/meu-piloto --prompt-builder-root C:/Users/kluse/Projects/prompt-builder --budget 0.10 --live --approval-hash HASH_REAL_DO_DRY_RUN
+node .agents/skills/bypass-prompt-evals-agent-skill/scripts/prompt_builder_rewrite.mjs --directory results/meu-piloto --prompt-builder-root C:/Users/kluse/Projects/prompt-builder --budget 0.10 --live --approval-hash HASH_REAL_DO_DRY_RUN
 # Inspecionar a proposta, preservação dos contratos e escopo antes da coleta.
 python3 scripts/harden.py check --file results/meu-piloto/revised.md --json
-python3 scripts/defensive_lab.py collect results/meu-piloto --candidate revised --budget 0.30 --dry-run
-python3 scripts/defensive_lab.py collect results/meu-piloto --candidate original --budget 0.30 --live
-python3 scripts/defensive_lab.py collect results/meu-piloto --candidate revised --budget 0.30 --live
-python3 scripts/defensive_lab.py export-jev results/meu-piloto --budget 0.10
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py collect results/meu-piloto --candidate revised --budget 0.30 --dry-run
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py collect results/meu-piloto --candidate original --budget 0.30 --live
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py collect results/meu-piloto --candidate revised --budget 0.30 --live
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py export-jev results/meu-piloto --budget 0.10
 ```
 
 Os tetos são **ilustrativos**, não estimativas medidas nem autorização. O cliente Python reserva uma estimativa conservadora por bytes e limita saída/preços/tentativas; não é um tokenizer exato nem um limite duro da conta. Configure também um credit limit na chave OpenRouter. O adaptador usa as guardas de orçamento, lock e limite diário do prompt-builder.
@@ -88,7 +93,7 @@ node $pb jev eval -c results/meu-piloto/jev-eval.json --budget 0.10 --dry-run --
 # Conferir pré-voo, manter os avisos sem ouro e respeitar a autorização de gasto.
 node $pb jev eval -c results/meu-piloto/jev-eval.json --budget 0.10 --output-format ndjson --data-dir results/meu-piloto/jev-state
 # Usar o ID real retornado. O arquivo bruto preserva answers e probabilidades.
-python3 scripts/defensive_lab.py compare results/meu-piloto --record results/meu-piloto/jev-state/jev-runs/ID_REAL.json
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py compare results/meu-piloto --record results/meu-piloto/jev-state/jev-runs/ID_REAL.json
 ```
 
 O CLI JEV desta instalação **não aceita `--idempotency-key`** e não oferece retomada de JEV. Uma nova run após término pode cobrar novamente. Não inventar flags. NDJSON de progresso não contém distribuições completas; usar o registro `jev-run@1` ou `jev show ID --full --json`.

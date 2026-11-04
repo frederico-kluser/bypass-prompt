@@ -85,20 +85,34 @@ Use the [historical final guide](<references/avaliacao-prompt-builder-jev.md>) w
 
 The distinction matters: arena `--judge-engine jev` can escalate to an LLM panel. The strict JEV-only route in the guide uses decision-mode evaluation without `models.llm`; it does not pretend that Jev generates agent replies or executes the target.
 
-## Optional defensive laboratory
+## Tests and benchmarks: one dedicated skill
 
-The [opt-in laboratory guide](<references/laboratorio-defensivo-glm-jev.md>) documents the new [internal API](<scripts/defensive_api.py>), [collector and paired analysis](<scripts/defensive_lab.py>) and [local prompt-builder adapter](<scripts/prompt_builder_rewrite.mjs>). It pins GLM 5.3 Flash at maximum announced effort for a single blinded defensive proposal and synthetic text collection, then uses decision-mode JEV without a judge LLM fallback.
-
-No detector feedback is sent to the rewriter. Every defensive policy bullet is a literal never-break clause. API refusals are not rerouted; partial/invalid observations are inconclusive. Without independent human gold, results are explicitly **uncalibrated descriptive annotations**, not proof of efficacy or judge accuracy. Candidate prompts are not applied automatically.
-
-Offline checks for this opt-in implementation (no model calls):
+All tests and recorded benchmarks now live in the [evaluation skill](<.agents/skills/bypass-prompt-evals-agent-skill/SKILL.md>). It bundles four behavioural offline suites, a benchmark-integrity suite, the benchmark tools, the 60-case risk corpus and a hash-verified registry of the measurements already taken.
 
 ```bash
-python3 -m unittest discover -s tests -v
-node --test tests/test_prompt_builder_rewrite.mjs
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/run_checks.py
 ```
 
-Python remains stdlib-only. The optional adapter additionally needs Node 20.11+ and an already-built local prompt-builder installation; it records hashes because its imports are internal, not a stable public API. New tests are local and add no CI stage.
+That single command runs the Python suites, the Node adapter suite, the legacy offline selftest and the hardening-template checks, then recomputes every benchmark hash. It makes no model call, reads no credential and opens no network connection.
+
+The [opt-in laboratory guide](<references/laboratorio-defensivo-glm-jev.md>) still describes the paid protocol; its commands now point at the skill. The recorded run kept the original prompt: the proposal showed **0 percentage points** of gain across 20 decisive pairs of 24, with no independent human gold. Those numbers are historical evidence, not a current measurement or authorization to spend.
+
+## Risk-policy request corpus: classification only
+
+The [risk and refusal guide](<references/casos-risco-e-recusa.md>) documents [60 high-level request cases](<.agents/skills/bypass-prompt-evals-agent-skill/assets/casos-politica-risco-v1.json>) across ten domains: pentest authorization, weapons, coercive manipulation, fraud, privacy, violence, dangerous materials, self-harm, public integrity and health/consent. It includes 27 refusal references, 19 legitimate controls, nine clarification cases and five crisis-support cases.
+
+These are **agent-curated policy references, not human gold**. Inputs express harmful intent without supplying operational instructions. The [local exporter](<.agents/skills/bypass-prompt-evals-agent-skill/scripts/policy_cases.py>) keeps references outside the JEV state and emits an annotation-only decision config with `expected: {}`. It never sends this corpus to the GLM collector or rewriter; the previous 24-case pilot remains frozen.
+
+```bash
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --list
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --list --category pentest --category armas --action refuse
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --out-dir results/my-policy-cases --budget 0.10
+python3 .agents/skills/bypass-prompt-evals-agent-skill/scripts/defensive_lab.py policy-cases --verify results/my-policy-cases
+```
+
+All four commands are local and make no model calls. Exporting a budget is not spending authorization. Request classification is a different task from testing an assistant's responses; no new efficacy measurement is implied.
+
+Python remains stdlib-only. The optional adapter additionally needs Node 20.11+ and an already-built local prompt-builder installation; it records hashes because its imports are internal, not a stable public API. The new tests live in the skill and add no CI stage.
 
 ## Architecture and references
 
