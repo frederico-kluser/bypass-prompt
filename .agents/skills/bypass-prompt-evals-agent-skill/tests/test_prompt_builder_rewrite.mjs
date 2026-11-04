@@ -279,6 +279,8 @@ describe('proposalParams: clarity only, literal defensive rules, no judge/agent 
     assert.match(p.theme, /tarefas textuais benignas/);
     assert.match(p.theme, /preservar literalmente todas as cláusulas defensivas/);
     assert.match(p.theme, /Nunca facilitar evasão/);
+    assert.match(p.theme, /disciplina de saída/);
+    assert.match(p.theme, /sem prefácios, notas, comentários ou epílogos adicionais/);
     assert.equal(p.analysisHint, undefined);
     assert.equal(p.guardScenarios, undefined);
     assert.equal(p.contractJudgeModelId, undefined);
